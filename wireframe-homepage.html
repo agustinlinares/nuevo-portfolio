@@ -841,7 +841,7 @@
           <h3 class="exposicion-heading" data-es="He hecho alguna exposición comentando las ventajas de usar las tecnologías" data-en="I've given talks on the advantages of using technology">He hecho alguna exposición comentando las ventajas de usar las tecnologías</h3>
           <p class="exposicion-text" data-es="Disfruto compartiendo lo que sé sobre tecnología con otras personas. He participado en formaciones y exposiciones —como una charla sobre SAP Human Resources (SAP HR)— explicando las ventajas de aplicar distintas herramientas digitales en el entorno laboral. Para mí, ayudar a otros a entender y aplicar la tecnología es igual de valioso en el ámbito profesional que en el día a día." data-en="I enjoy sharing what I know about technology with others. I've taken part in training sessions and talks — including one on SAP Human Resources (SAP HR) — explaining the advantages of applying different digital tools in the workplace. For me, helping others understand and apply technology matters just as much professionally as it does day to day.">Disfruto compartiendo lo que sé sobre tecnología con otras personas. He participado en formaciones y exposiciones —como una charla sobre SAP Human Resources (SAP HR)— explicando las ventajas de aplicar distintas herramientas digitales en el entorno laboral. Para mí, ayudar a otros a entender y aplicar la tecnología es igual de valioso en el ámbito profesional que en el día a día.</p>
           <div class="exposicion-gallery">
-            <img class="exposicion-photo-real" src="exposicion-sap-hr.jpg" alt="Agustín impartiendo una exposición sobre SAP Human Resources (SAP HR) en Core Networks Sevilla" loading="lazy">
+            <img class="exposicion-photo-real" src="exposicion-sap-hr.png" alt="Agustín impartiendo una exposición sobre SAP Human Resources (SAP HR) en Core Networks Sevilla" loading="lazy">
           </div>
         </div>
       </div>
@@ -1846,11 +1846,11 @@
     const KIND_BY_THEME = {
       default: 'dots', jaen: 'leaves', betis: 'pentagons', motorsport: 'streaks',
       musica: 'bars', 'games-modernos': 'embers', retro: 'pixels', mesa: 'tiles',
-      manga: 'petals', cine: 'bokeh',
+      manga: 'sparkles', cine: 'bokeh',
     };
     const COUNT_BY_KIND = {
       dots: 70, leaves: 22, pentagons: 18, streaks: 10, bars: 24,
-      embers: 30, pixels: 26, tiles: 14, petals: 20, bokeh: 14,
+      embers: 30, pixels: 26, tiles: 14, sparkles: 24, bokeh: 14,
     };
 
     function currentThemeSlug() {
@@ -1896,10 +1896,10 @@
           return { x: rnd(0,w), y: rnd(0,h), vx: rnd(-0.35,0.35), vy: rnd(-0.35,0.35), size: [4,6,8][Math.floor(rnd(0,3))], alt: Math.random() < 0.5 };
         case 'tiles':
           return { x: rnd(0,w), y: rnd(0,h), vy: rnd(0.12,0.32), size: rnd(9,15), rot: rnd(0,Math.PI*2), rotSpeed: rnd(-0.008,0.008) };
-        case 'petals':
-          return { x: rnd(0,w), y: rnd(0,h), vy: rnd(0.35,0.8), size: rnd(4,7), rot: rnd(0,Math.PI*2), rotSpeed: rnd(-0.02,0.02), phase: rnd(0,Math.PI*2) };
+        case 'sparkles':
+          return { x: rnd(0,w), y: rnd(0,h), vy: -rnd(0.05,0.18), size: rnd(3,9), rot: rnd(0,Math.PI*2), rotSpeed: rnd(-0.01,0.01), phase: rnd(0,Math.PI*2), freq: rnd(0.0015,0.0035), alt: Math.random() < 0.5 };
         case 'bokeh':
-          return { x: rnd(0,w), y: rnd(0,h), vy: -rnd(0.05,0.16), size: rnd(18,44), alpha: rnd(0.05,0.11) };
+          return { x: rnd(0,w), y: rnd(0,h), vy: -rnd(0.05,0.16), size: rnd(22,52), alpha: rnd(0.10,0.22) };
       }
     }
     function initParticles() {
@@ -1917,15 +1917,34 @@
           if (p.x < 0 || p.x > w) p.vx *= -1;
           if (p.y < 0 || p.y > h) p.vy *= -1;
           return;
-        case 'leaves':
-        case 'petals': {
+        case 'leaves': {
           p.y += p.vy; p.x += Math.sin(t*0.0011 + p.phase) * 0.35; p.rot += p.rotSpeed;
           if (p.y > h + 20) { p.y = -20; p.x = rnd(0,w); }
-          const col = currentKind === 'petals' ? A : A;
           ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.rot);
-          ctx.fillStyle = rgba(col, currentKind === 'petals' ? 0.32 : 0.3);
+          ctx.fillStyle = rgba(A, 0.3);
           ctx.beginPath();
-          ctx.ellipse(0, 0, p.size, p.size * (currentKind === 'petals' ? 0.34 : 0.42), 0, 0, Math.PI*2);
+          ctx.ellipse(0, 0, p.size, p.size * 0.42, 0, 0, Math.PI*2);
+          ctx.fill(); ctx.restore();
+          return;
+        }
+        case 'sparkles': {
+          // "kirakira": destellos de 4 puntas que titilan, típicos del manga/anime,
+          // flotando muy lentamente hacia arriba como polvo mágico.
+          p.y += p.vy; p.rot += p.rotSpeed;
+          if (p.y < -p.size * 3) { p.y = h + p.size * 3; p.x = rnd(0,w); }
+          const tw = Math.abs(Math.sin(t * p.freq + p.phase));
+          const alpha = 0.12 + 0.6 * tw;
+          const R = p.size * (0.55 + 0.55 * tw);
+          const r = R * 0.28;
+          ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.rot);
+          ctx.fillStyle = rgba(p.alt ? B : A, alpha);
+          ctx.beginPath();
+          ctx.moveTo(0, -R);
+          ctx.quadraticCurveTo(r, -r, R, 0);
+          ctx.quadraticCurveTo(r, r, 0, R);
+          ctx.quadraticCurveTo(-r, r, -R, 0);
+          ctx.quadraticCurveTo(-r, -r, 0, -R);
+          ctx.closePath();
           ctx.fill(); ctx.restore();
           return;
         }
@@ -1986,10 +2005,16 @@
           return;
         }
         case 'bokeh': {
+          // en tono claro el mismo alpha resulta casi invisible sobre un fondo claro,
+          // así que se refuerza la opacidad cuando html.light está activo.
           p.y += p.vy;
           if (p.y < -p.size) { p.y = h + p.size; p.x = rnd(0,w); }
+          const light = document.documentElement.classList.contains('light');
+          const a = light ? Math.min(p.alpha * 2.6, 0.55) : p.alpha;
           const grad = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size);
-          grad.addColorStop(0, rgba(A, p.alpha)); grad.addColorStop(1, rgba(A, 0));
+          grad.addColorStop(0, rgba(A, a));
+          grad.addColorStop(0.45, rgba(A, a * 0.55));
+          grad.addColorStop(1, rgba(A, 0));
           ctx.fillStyle = grad;
           ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI*2); ctx.fill();
           return;
