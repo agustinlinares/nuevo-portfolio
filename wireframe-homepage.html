@@ -1836,53 +1836,193 @@
     window.addEventListener('touchend', pointerUp);
   })();
 
-  // fondo de partículas animado (constelación)
+  // fondo animado de cada temática: 💻 conserva la constelación de puntos original;
+  // el resto de temas tienen su propio "efecto" inspirado en su temática (sin puntos parpadeando genéricos)
   (function () {
     const canvas = document.getElementById('particleCanvas');
     const ctx = canvas.getContext('2d');
-    let w, h, particles;
+    let w, h, particles, currentKind;
+
+    const KIND_BY_THEME = {
+      default: 'dots', jaen: 'leaves', betis: 'pentagons', motorsport: 'streaks',
+      musica: 'bars', 'games-modernos': 'embers', retro: 'pixels', mesa: 'tiles',
+      manga: 'petals', cine: 'bokeh',
+    };
+    const COUNT_BY_KIND = {
+      dots: 70, leaves: 22, pentagons: 18, streaks: 10, bars: 24,
+      embers: 30, pixels: 26, tiles: 14, petals: 20, bokeh: 14,
+    };
+
+    function currentThemeSlug() {
+      return document.documentElement.getAttribute('data-theme') || 'default';
+    }
+    function hexToRgb(hex) {
+      const m = (hex || '').replace('#','').match(/.{1,2}/g);
+      return m ? m.map(c => parseInt(c,16)) : [91,140,255];
+    }
+    function getColors() {
+      const cs = getComputedStyle(document.documentElement);
+      return {
+        a: hexToRgb(cs.getPropertyValue('--accent').trim() || '#5B8CFF'),
+        b: hexToRgb(cs.getPropertyValue('--accent-2').trim() || '#34D1BF'),
+      };
+    }
+    function rgba(rgb, alpha) { return `rgba(${rgb[0]},${rgb[1]},${rgb[2]},${alpha})`; }
+
     function resize() {
+      // el canvas es position:fixed (cubre solo el viewport, no la página completa),
+      // así que su alto debe ser el del viewport — usar scrollHeight aquí solo diluía las figuras
+      // por una altura de página que nunca llega a mostrarse.
       w = canvas.width = window.innerWidth;
-      h = canvas.height = Math.max(window.innerHeight, document.body.scrollHeight);
+      h = canvas.height = window.innerHeight;
     }
     const rnd = (min, max) => min + Math.random() * (max - min);
+
+    function spawn(kind, i, count) {
+      switch (kind) {
+        case 'dots':
+          return { x: rnd(0,w), y: rnd(0,h), vx: rnd(-0.125,0.125), vy: rnd(-0.125,0.125) };
+        case 'leaves':
+          return { x: rnd(0,w), y: rnd(0,h), vy: rnd(0.3,0.7), size: rnd(5,9), rot: rnd(0,Math.PI*2), rotSpeed: rnd(-0.012,0.012), phase: rnd(0,Math.PI*2) };
+        case 'pentagons':
+          return { x: rnd(0,w), y: rnd(0,h), vy: -rnd(0.12,0.35), size: rnd(5,8), rot: rnd(0,Math.PI*2), rotSpeed: rnd(-0.01,0.01), phase: rnd(0,Math.PI*2) };
+        case 'streaks':
+          return { x: rnd(-200,w), y: rnd(0,h), len: rnd(60,150), speed: rnd(4,9), alpha: rnd(0.12,0.3) };
+        case 'bars':
+          return { x: (i+0.5) * (w/count), freq: rnd(0.0018,0.0038), phase: rnd(0,Math.PI*2), maxH: rnd(18,58), bw: Math.max(3, (w/count)*0.45) };
+        case 'embers':
+          return { x: rnd(0,w), y: rnd(0,h), vy: -rnd(0.2,0.7), vx: rnd(-0.15,0.15), size: rnd(1,2.6), phase: rnd(0,Math.PI*2) };
+        case 'pixels':
+          return { x: rnd(0,w), y: rnd(0,h), vx: rnd(-0.35,0.35), vy: rnd(-0.35,0.35), size: [4,6,8][Math.floor(rnd(0,3))], alt: Math.random() < 0.5 };
+        case 'tiles':
+          return { x: rnd(0,w), y: rnd(0,h), vy: rnd(0.12,0.32), size: rnd(9,15), rot: rnd(0,Math.PI*2), rotSpeed: rnd(-0.008,0.008) };
+        case 'petals':
+          return { x: rnd(0,w), y: rnd(0,h), vy: rnd(0.35,0.8), size: rnd(4,7), rot: rnd(0,Math.PI*2), rotSpeed: rnd(-0.02,0.02), phase: rnd(0,Math.PI*2) };
+        case 'bokeh':
+          return { x: rnd(0,w), y: rnd(0,h), vy: -rnd(0.05,0.16), size: rnd(18,44), alpha: rnd(0.05,0.11) };
+      }
+    }
     function initParticles() {
-      particles = Array.from({ length: 70 }, () => ({
-        x: rnd(0, w), y: rnd(0, h), vx: rnd(-0.125, 0.125), vy: rnd(-0.125, 0.125),
-      }));
+      currentKind = KIND_BY_THEME[currentThemeSlug()] || 'dots';
+      const count = COUNT_BY_KIND[currentKind];
+      particles = Array.from({ length: count }, (_, i) => spawn(currentKind, i, count));
     }
     function init() { resize(); initParticles(); }
-    function tick() {
-      ctx.clearRect(0, 0, w, h);
-      const cs = getComputedStyle(document.documentElement);
-      const accent = cs.getPropertyValue('--accent').trim() || '#5B8CFF';
-      const rgb = (accent.replace('#','').match(/.{1,2}/g) || ['5B','8C','FF']).map(c => parseInt(c,16));
-      const LINK_DIST = 140;
-      for (let i = 0; i < particles.length; i++) {
-        const p = particles[i];
-        p.x += p.vx; p.y += p.vy;
-        if (p.x < 0 || p.x > w) p.vx *= -1;
-        if (p.y < 0 || p.y > h) p.vy *= -1;
-      }
-      for (let i = 0; i < particles.length; i++) {
-        for (let j = i + 1; j < particles.length; j++) {
-          const dx = particles[i].x - particles[j].x, dy = particles[i].y - particles[j].y;
-          const dist = Math.sqrt(dx*dx + dy*dy);
-          if (dist < LINK_DIST) {
-            ctx.strokeStyle = `rgba(${rgb[0]},${rgb[1]},${rgb[2]},${0.22 * (1 - dist / LINK_DIST)})`;
-            ctx.lineWidth = 1;
-            ctx.beginPath(); ctx.moveTo(particles[i].x, particles[i].y); ctx.lineTo(particles[j].x, particles[j].y); ctx.stroke();
+
+    function stepAndDraw(p, colors, t) {
+      const A = colors.a, B = colors.b;
+      switch (currentKind) {
+        case 'dots':
+          p.x += p.vx; p.y += p.vy;
+          if (p.x < 0 || p.x > w) p.vx *= -1;
+          if (p.y < 0 || p.y > h) p.vy *= -1;
+          return;
+        case 'leaves':
+        case 'petals': {
+          p.y += p.vy; p.x += Math.sin(t*0.0011 + p.phase) * 0.35; p.rot += p.rotSpeed;
+          if (p.y > h + 20) { p.y = -20; p.x = rnd(0,w); }
+          const col = currentKind === 'petals' ? A : A;
+          ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.rot);
+          ctx.fillStyle = rgba(col, currentKind === 'petals' ? 0.32 : 0.3);
+          ctx.beginPath();
+          ctx.ellipse(0, 0, p.size, p.size * (currentKind === 'petals' ? 0.34 : 0.42), 0, 0, Math.PI*2);
+          ctx.fill(); ctx.restore();
+          return;
+        }
+        case 'pentagons': {
+          p.y += p.vy; p.rot += p.rotSpeed;
+          if (p.y < -20) { p.y = h + 20; p.x = rnd(0,w); }
+          const alpha = 0.14 + 0.12 * Math.abs(Math.sin(t*0.0016 + p.phase));
+          ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.rot);
+          ctx.strokeStyle = rgba(A, alpha); ctx.lineWidth = 1.2;
+          ctx.beginPath();
+          for (let k = 0; k < 5; k++) {
+            const ang = -Math.PI/2 + k * (Math.PI*2/5);
+            const px = Math.cos(ang) * p.size, py = Math.sin(ang) * p.size;
+            k === 0 ? ctx.moveTo(px,py) : ctx.lineTo(px,py);
           }
+          ctx.closePath(); ctx.stroke(); ctx.restore();
+          return;
+        }
+        case 'streaks': {
+          p.x += p.speed;
+          if (p.x - p.len > w) { p.x = rnd(-300,-p.len); p.y = rnd(0,h); }
+          const grad = ctx.createLinearGradient(p.x - p.len, p.y, p.x, p.y);
+          grad.addColorStop(0, rgba(A, 0)); grad.addColorStop(1, rgba(A, p.alpha));
+          ctx.strokeStyle = grad; ctx.lineWidth = 2; ctx.lineCap = 'round';
+          ctx.beginPath(); ctx.moveTo(p.x - p.len, p.y); ctx.lineTo(p.x, p.y); ctx.stroke();
+          return;
+        }
+        case 'bars': {
+          const baseY = Math.min(window.innerHeight, h) - 34;
+          const hgt = (0.28 + 0.72 * Math.abs(Math.sin(t*p.freq + p.phase))) * p.maxH;
+          ctx.fillStyle = rgba(A, 0.16);
+          ctx.fillRect(p.x - p.bw/2, baseY - hgt, p.bw, hgt);
+          return;
+        }
+        case 'embers': {
+          p.y += p.vy; p.x += p.vx + Math.sin(t*0.002 + p.phase) * 0.12;
+          if (p.y < -10) { p.y = h + 10; p.x = rnd(0,w); }
+          const alpha = 0.3 + 0.4 * Math.abs(Math.sin(t*0.004 + p.phase));
+          ctx.fillStyle = rgba(A, alpha);
+          ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI*2); ctx.fill();
+          return;
+        }
+        case 'pixels': {
+          p.x += p.vx; p.y += p.vy;
+          if (p.x < 0 || p.x > w) p.vx *= -1;
+          if (p.y < 0 || p.y > h) p.vy *= -1;
+          ctx.fillStyle = rgba(p.alt ? B : A, 0.5);
+          ctx.fillRect(Math.round(p.x), Math.round(p.y), p.size, p.size);
+          return;
+        }
+        case 'tiles': {
+          p.y += p.vy; p.rot += p.rotSpeed;
+          if (p.y > h + 20) { p.y = -20; p.x = rnd(0,w); }
+          ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.rot);
+          ctx.strokeStyle = rgba(A, 0.28); ctx.lineWidth = 1.2;
+          ctx.strokeRect(-p.size/2, -p.size/2, p.size, p.size);
+          ctx.restore();
+          return;
+        }
+        case 'bokeh': {
+          p.y += p.vy;
+          if (p.y < -p.size) { p.y = h + p.size; p.x = rnd(0,w); }
+          const grad = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size);
+          grad.addColorStop(0, rgba(A, p.alpha)); grad.addColorStop(1, rgba(A, 0));
+          ctx.fillStyle = grad;
+          ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI*2); ctx.fill();
+          return;
         }
       }
-      particles.forEach(p => { ctx.fillStyle = `rgba(${rgb[0]},${rgb[1]},${rgb[2]},0.75)`; ctx.beginPath(); ctx.arc(p.x, p.y, 1.8, 0, Math.PI*2); ctx.fill(); });
+    }
+
+    function tick(t) {
+      ctx.clearRect(0, 0, w, h);
+      const colors = getColors();
+      particles.forEach(p => stepAndDraw(p, colors, t));
+      if (currentKind === 'dots') {
+        const LINK_DIST = 140;
+        for (let i = 0; i < particles.length; i++) {
+          for (let j = i + 1; j < particles.length; j++) {
+            const dx = particles[i].x - particles[j].x, dy = particles[i].y - particles[j].y;
+            const dist = Math.sqrt(dx*dx + dy*dy);
+            if (dist < LINK_DIST) {
+              ctx.strokeStyle = rgba(colors.a, 0.22 * (1 - dist / LINK_DIST));
+              ctx.lineWidth = 1;
+              ctx.beginPath(); ctx.moveTo(particles[i].x, particles[i].y); ctx.lineTo(particles[j].x, particles[j].y); ctx.stroke();
+            }
+          }
+        }
+        particles.forEach(p => { ctx.fillStyle = rgba(colors.a, 0.75); ctx.beginPath(); ctx.arc(p.x, p.y, 1.8, 0, Math.PI*2); ctx.fill(); });
+      }
       requestAnimationFrame(tick);
     }
     window.addEventListener('resize', resize);
+    window.__reinitFx = initParticles;
     init();
     requestAnimationFrame(tick);
   })();
-
 
   const placeholders = {
     fName: { es: 'Escribe aquí…', en: 'Type here…' },
