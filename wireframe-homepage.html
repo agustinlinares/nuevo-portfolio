@@ -531,6 +531,43 @@
   html.js-anim .formacion-timeline::before { transform-origin: top; transform: translateX(-50%) scaleY(0); transition: transform 1.1s cubic-bezier(.2,.65,.3,1); }
   html.js-anim .formacion-timeline.is-visible::before { transform: translateX(-50%) scaleY(1); }
   @media (prefers-reduced-motion: reduce) { html.js-anim .formacion-timeline::before { transform:translateX(-50%) scaleY(1) !important; transition:none !important; } }
+
+  /* ============ REPRODUCTOR DE RADIO (Spotify embebido + podcasts por temática) ============ */
+  body { padding-bottom: 88px; }
+  .radio-player { position:fixed; left:0; right:0; bottom:0; z-index:30; background:color-mix(in srgb, var(--surface) 96%, transparent); backdrop-filter:blur(10px); border-top:1px solid var(--border); box-shadow:0 -6px 24px rgba(0,0,0,.18); transition:background .25s ease, border-color .25s ease; }
+  .radio-player.minimized .radio-player-inner, .radio-player.minimized .radio-podcasts { display:none; }
+  .radio-player-inner { max-width:1680px; margin:0 auto; padding:10px 32px; display:flex; align-items:center; gap:16px; }
+  .radio-brand { display:flex; align-items:center; gap:10px; flex-shrink:0; }
+  .radio-live-dot { width:8px; height:8px; border-radius:999px; background:#E4433A; flex-shrink:0; animation:radioPulse 1.8s infinite; }
+  @keyframes radioPulse { 0% { box-shadow:0 0 0 0 rgba(228,67,58,.55); } 70% { box-shadow:0 0 0 8px rgba(228,67,58,0); } 100% { box-shadow:0 0 0 0 rgba(228,67,58,0); } }
+  @media (prefers-reduced-motion: reduce) { .radio-live-dot { animation:none; } }
+  .radio-emoji { font-size:20px; line-height:1; }
+  .radio-brand-text { display:flex; flex-direction:column; gap:1px; min-width:0; }
+  .radio-live-label { color:var(--accent); }
+  .radio-station-name { font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:14px; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:160px; }
+  .radio-embed-wrap { flex:1 1 auto; min-width:0; max-width:420px; border-radius:12px; overflow:hidden; }
+  .radio-embed-wrap iframe { display:block; width:100%; height:80px; border:none; }
+  .radio-actions { display:flex; align-items:center; gap:8px; flex-shrink:0; margin-left:auto; }
+  .radio-channels { max-width:1680px; margin:0 auto; padding:0 32px 10px; display:flex; flex-wrap:wrap; gap:6px; }
+  .radio-channels[hidden] { display:none; }
+  .radio-channel-btn { padding:5px 13px; border-radius:999px; border:1px solid var(--border); background:var(--surface); color:var(--text-2); cursor:pointer; font-family:'JetBrains Mono',monospace; font-size:11px; text-transform:uppercase; letter-spacing:.04em; }
+  .radio-channel-btn:hover { color:var(--text); }
+  .radio-channel-btn.active { background:color-mix(in srgb, var(--accent) 18%, transparent); border-color:var(--accent); color:var(--accent); }
+  .radio-podcasts { max-width:1680px; margin:0 auto; padding:0 32px 16px; display:none; flex-wrap:wrap; align-items:center; gap:8px; border-top:1px dashed var(--border); }
+  .radio-podcasts.open { display:flex; padding-top:14px; }
+  .radio-podcasts-label { width:100%; }
+  .radio-podcast-link { display:inline-flex; align-items:center; gap:6px; padding:8px 14px; border-radius:999px; background:var(--surface); border:1px solid var(--border); color:var(--text); text-decoration:none; font-size:13px; font-weight:500; }
+  .radio-podcast-link:hover { border-color:var(--accent); color:var(--accent); }
+  .radio-reopen { position:fixed; right:24px; bottom:24px; z-index:29; width:48px; height:48px; border-radius:999px; background:var(--surface); border:1px solid var(--border); box-shadow:var(--shadow); display:none; align-items:center; justify-content:center; font-size:20px; cursor:pointer; }
+  .radio-reopen.show { display:flex; }
+  @media (max-width:900px) {
+    body { padding-bottom:150px; }
+    .radio-player-inner { padding:10px 16px; gap:10px; flex-wrap:wrap; }
+    .radio-brand-text { display:none; }
+    .radio-embed-wrap { order:3; flex-basis:100%; max-width:none; }
+    .radio-actions { margin-left:0; }
+    .radio-podcasts { padding:0 16px 14px; }
+  }
 </style>
 </head>
 <body>
@@ -1639,6 +1676,29 @@
   </div>
 </div>
 
+<div class="radio-player" id="radioPlayer">
+  <div class="radio-player-inner">
+    <div class="radio-brand">
+      <span class="radio-live-dot" aria-hidden="true"></span>
+      <span class="radio-emoji" id="radioEmoji">💻</span>
+      <div class="radio-brand-text">
+        <span class="radio-live-label note" data-es="EN DIRECTO" data-en="LIVE">EN DIRECTO</span>
+        <span class="radio-station-name" id="radioStationName">Radio Backend</span>
+      </div>
+    </div>
+    <div class="radio-embed-wrap">
+      <div id="spotifyEmbed"></div>
+    </div>
+    <div class="radio-actions">
+      <button type="button" class="icon-btn" id="podcastsToggle" onclick="togglePodcasts()" title="Podcasts recomendados">🎧</button>
+      <button type="button" class="icon-btn" id="radioMinToggle" onclick="toggleRadioPlayer()" title="Minimizar reproductor">⌄</button>
+    </div>
+  </div>
+  <div class="radio-channels" id="radioChannels" hidden></div>
+  <div class="radio-podcasts" id="radioPodcasts"></div>
+</div>
+<button type="button" class="radio-reopen" id="radioReopen" onclick="toggleRadioPlayer(true)" title="Abrir reproductor" aria-label="Abrir reproductor">🎧</button>
+
 <script>
   // logos oficiales — Simple Icons (marcas) vía jsDelivr y Devicon (lenguajes/frameworks) vía jsDelivr
   // OJO Agustín: no tengo acceso a internet en este sandbox para comprobar en vivo que cada URL carga.
@@ -2185,6 +2245,7 @@
     else document.documentElement.removeAttribute('data-theme');
     if (window.__reinitFx) window.__reinitFx();
     updateFavicon();
+    if (window.updateRadioPlayer) updateRadioPlayer(emoji);
   }
   function toggleCvMenu(menuId) {
     const menu = document.getElementById(menuId);
@@ -2272,6 +2333,209 @@
     });
     document.getElementById('langBtn').textContent = next === 'es' ? 'EN' : 'ES';
   }
+
+  // ============ REPRODUCTOR DE RADIO (Spotify embebido + podcasts por temática) ============
+  // Playlists reales elegidas junto a Agustín (2026-09-18). Cada tema tiene 1+ "canales";
+  // 🎸 tiene 3 (Metal / Hip Hop / Indie español) con selector. Para cambiar cualquier playlist,
+  // sustituye el "uri": el ID es la parte final de la URL, p.ej. open.spotify.com/playlist/ESTE_ID
+  const RADIO_STATIONS = {
+    '💻': { station: 'Radio Backend', channels: [
+      { label: 'Lo-Fi Code', uri: 'spotify:playlist:0c4AtmavG5YdfEsFEI2fUE' },
+    ]},
+    '🫒': { station: 'Radio Jaén Sur', channels: [
+      { label: 'Flamenco Fusión', uri: 'spotify:playlist:4Einuc4YSVyKxX8tiXXnDM' },
+    ]},
+    '⚽': { station: 'Radio Verdiblanca', channels: [
+      { label: 'Cánticos Betis', uri: 'spotify:playlist:7l2X9CQIUK6DI5mh39apjc' },
+    ]},
+    '🚗': { station: 'Radio Paddock', channels: [
+      { label: 'F1 Tracks: Ministry of Sound', uri: 'spotify:playlist:4lb9kSKMQzQWIUZ7SDimhh' },
+    ]},
+    '🎸': { station: 'Radio Riff', channels: [
+      { label: 'Metal', uri: 'spotify:playlist:37i9dQZF1DWTcqUzwhNmKv' },
+      { label: 'Hip Hop', uri: 'spotify:playlist:37i9dQZF1DX0XUsuxWHRQd' },
+      { label: 'Indie español', uri: 'spotify:playlist:4bOVU2AT1VJyZviE6PDUWY' },
+    ]},
+    '🎮': { station: 'Radio Respawn', channels: [
+      { label: 'Boss Rush', uri: 'spotify:playlist:1f8eRzKk4195Oo4JqfSkze' },
+    ]},
+    '🕹️': { station: 'Radio Pixel', channels: [
+      { label: 'Chipped Bits', uri: 'spotify:playlist:5dNxtLnS44AlhggKQGrRhr' },
+    ]},
+    '🎱': { station: 'Radio Tablero', channels: [
+      { label: 'Jazz in the Background', uri: 'spotify:playlist:37i9dQZF1DWV7EzJMK2FUI' },
+    ]},
+    '🀄': { station: 'Radio Sakura', channels: [
+      { label: 'Anime Now', uri: 'spotify:playlist:37i9dQZF1DWT8aqnwgRt92' },
+    ]},
+    '🎥': { station: 'Radio Fundido', channels: [
+      { label: 'Epic Movie Soundtracks', uri: 'spotify:playlist:7rb5bQCUKp8t6pzrp1T2z5' },
+    ]},
+  };
+  // Podcasts reales de referencia por temática (investigados, no inventados). Pueden ampliarse.
+  const PODCASTS_BY_THEME = {
+    '💻': [
+      { title: 'Loop Infinito (by Xataka)', url: 'https://open.spotify.com/show/5C0UAinubsuw6JWLCMvpCJ' },
+      { title: 'Hablamos de SAP', url: 'https://open.spotify.com/show/3L2TuR7QYxv33ukzOXwFLM' },
+      { title: 'DevTalles (Fernando Herrera)', url: 'https://open.spotify.com/show/0jrfxcnCrD7N9tlA0BGJp5' },
+      { title: 'Syntax — Tasty Web Development Treats', url: 'https://open.spotify.com/show/4kYCRYJ3yK5DQbP5tbfZby' },
+      { title: 'Web Reactiva', url: 'https://webreactiva.dev/spotify' },
+    ],
+    '🫒': [
+      { title: 'Radio Jaén', url: 'https://open.spotify.com/show/696uFdeDHdjFDVpzVdOdMx' },
+      { title: 'EXTRA JAÉN | JAÉN NI PODCAST', url: 'https://open.spotify.com/show/3i6qCRlTSO9G4W9kLkiVTW' },
+      { title: 'Hoy en EL PAÍS', url: 'https://open.spotify.com/show/4n2SYRzAXUKDFccZ993ZEh' },
+      { title: 'Un tema al día (elDiario.es)', url: 'https://open.spotify.com/show/54Vnd9qwrTaINwzCkTTIWO' },
+      { title: 'La Primera de Expansión', url: 'https://open.spotify.com/show/0FTwiCMKTwCTmySy4u2X3j' },
+      { title: 'Cuéntame de economía', url: 'https://open.spotify.com/show/2G44OhAzSlNludsv2XPKJd' },
+    ],
+    '⚽': [
+      { title: 'Estilo Betis', url: 'https://www.ivoox.com/en/podcast-estilo-betis_sq_f1449996_1.html' },
+      { title: 'Directo MARCA Sevilla', url: 'https://open.spotify.com/show/1PW2j6JbXtW2kqehlClLdj' },
+      { title: 'Estadio Sevilla', url: 'https://open.spotify.com/show/3ujkRChW8g110J7ZgVyghY' },
+      { title: 'El Larguero (Cadena SER)', url: 'https://open.spotify.com/show/1TXqgXhEgMKKzdx9gWDjhi' },
+      { title: 'Carrusel Deportivo (RNE)', url: 'https://open.spotify.com/show/7ijMsHiLxGBjfpw67Y4lBw' },
+      { title: 'Official UEFA Champions League Podcast', url: 'https://open.spotify.com/show/1BrJcffOuBomXVTcXy3M2v' },
+      { title: 'CONMEBOL Libertadores', url: 'https://open.spotify.com/show/29oS7CEOiF2OmQ2y6BOfGS' },
+      { title: 'Nos Gusta el Basket (Radio MARCA)', url: 'https://open.spotify.com/show/0G7rSbVvwBZyO1l4EhRXXZ' },
+      { title: 'Tiempo de Juego en COPE Sevilla', url: 'https://www.ivoox.com/tiempo-juego-cope-sevilla-16-audios-mp3_rf_94098754_1.html' },
+      { title: 'MassiveBall (Tu Podcast NBA en Español)', url: 'https://open.spotify.com/show/5cFpt8nd2fI5T2EQX97AmS' },
+    ],
+    '🚗': [
+      { title: 'Técnica Fórmula 1', url: 'https://www.ivoox.com/en/podcast-tecnica-formula-1-podcast-f1_sq_f1361567_1.html' },
+      { title: 'MotoRaceNation (MotoGP)', url: 'https://open.spotify.com/show/3s29XBueKOe6CbLpBrexQ3' },
+      { title: 'MARCA Motor', url: 'https://open.spotify.com/show/7wvueRfLukZCUK9x9x4w7A' },
+      { title: 'AutoFM — Programa del Motor y Coches', url: 'https://open.spotify.com/show/0W1FLlGo9VV8LT4jgQBBKT' },
+      { title: 'El Rally Podcast', url: 'https://podcasts.apple.com/us/podcast/el-rally-podcast/id1856779371' },
+      { title: 'COPE GP', url: 'https://www.cope.es/podcasts/cope-gp' },
+      { title: 'Mecanicapod', url: 'https://podcasts.apple.com/es/podcast/podcast-mecanicapod/id587700317' },
+      { title: 'El PODCAST de la POSVENTA', url: 'https://open.spotify.com/show/1Ux2UViXoyOsmfDMvCoGPG' },
+    ],
+    '🎸': [
+      { title: 'Metal Hammer España Podcasts', url: 'https://open.spotify.com/show/7oifQpkTm84P5V4BwUFGUK' },
+      { title: 'La Hora Rockdelux', url: 'https://open.spotify.com/show/5PB7OE17O05Fh3IFR6IDzx' },
+      { title: 'Frank T presenta (RNE Radio 3)', url: 'https://www.ivoox.com/en/podcast-frank-t-presenta_sq_f12848660_1.html' },
+      { title: 'Barras Urbanas (Real Betis Radio)', url: 'https://www.ivoox.com/en/podcast-barras-urbanas_sq_f11671275_1.html' },
+      { title: 'Corsarios del Metal', url: 'https://open.spotify.com/show/5IiNjRKlgA2vwa3OOIxTpQ' },
+      { title: 'Revelación o Timo (JENESAISPOP)', url: 'https://open.spotify.com/show/59ebAGQeNDIg58TJDLAxaL' },
+    ],
+    '🎮': [
+      { title: 'Vandal Radio', url: 'https://podcasts.apple.com/es/podcast/vandal-radio/id845233752' },
+      { title: 'GG by 3DJuegos', url: 'https://open.spotify.com/show/1NS2aGhE4m7cvoAgeWj3GX' },
+      { title: 'Comunidad Xbox Podcast', url: 'https://open.spotify.com/show/7aLlwdgWabUEgI0c9v8yDo' },
+      { title: 'IGN Game Reviews', url: 'https://open.spotify.com/show/44YL4GTVsrOFTZJHepUDC2' },
+      { title: 'GAME España', url: 'https://open.spotify.com/show/3HDBc2Solq9jOKQvvbDhGQ' },
+      { title: 'RELOAD (AnaitGames)', url: 'https://open.spotify.com/show/0CVxf4TzWMqqjdrDrCHq51' },
+      { title: 'Nitro Podcast (Eurogamer.es)', url: 'https://podcasts.apple.com/es/podcast/nitro-podcast/id6806546630' },
+      { title: 'Estación Nintendo', url: 'https://open.spotify.com/show/7pGajzL4n5HMpKyWQ1YQpE' },
+    ],
+    '🕹️': [
+      { title: 'Rejugando — Videojuegos Clásicos', url: 'https://rejugando.com/programas/' },
+      { title: 'RetroManiac Podcast', url: 'https://open.spotify.com/show/1bFh4115QUdlTz7XoZ0lsn' },
+      { title: 'Podcast Retro Entre AMIGOS', url: 'https://open.spotify.com/show/3m0CXi4gHNtVhKJrkhcLKv' },
+    ],
+    '🎱': [
+      { title: 'Más Madera (eurogames)', url: 'https://masmaderapodcast.wordpress.com/' },
+      { title: 'Modo Juego', url: 'https://podcasts.apple.com/us/podcast/modo-juego/id1561997720' },
+      { title: 'La Pila de Descartes — Juegos de Mesa', url: 'https://open.spotify.com/show/2VbXmMUt8adX5oTtNIs1eJ' },
+      { title: 'Ciudadano Meeple', url: 'https://ciudadanomeeple.wordpress.com/' },
+    ],
+    '🀄': [
+      { title: 'Ramen Para Dos se queda en casa', url: 'https://open.spotify.com/show/4kI0dD0ggeVXr6jmHbzabE' },
+      { title: 'YaMétete Kudasai! Anime Podcast', url: 'https://open.spotify.com/show/5wJjjyZ9SxiY1mw8ubLiHw' },
+      { title: 'Japonismo (Japón a fondo)', url: 'https://open.spotify.com/show/6NdzswP6Auxhga9EnGXzue' },
+      { title: 'Tanukis de Kyoto', url: 'https://open.spotify.com/show/5KgwYG2FefFBJirCE4TMWV' },
+      { title: 'Otapod', url: 'https://open.spotify.com/show/27msDE4G4ROU3Dw183X2Aj' },
+      { title: 'Dimensión Manga', url: 'https://open.spotify.com/show/3JXRamjvnrd6qARnrCGqNt' },
+    ],
+    '🎥': [
+      { title: 'TDC — Tiempo de Culto', url: 'https://open.spotify.com/show/43qIJmZQUPiXf5eHUf9DQR' },
+      { title: 'SENSACINE', url: 'https://open.spotify.com/show/4Ver8trzpTUJBUGQDZhHlu' },
+      { title: 'Cine En Serie', url: 'https://www.ivoox.com/podcast-cine-en-serie_sq_f1317588_amp_1.html' },
+    ],
+  };
+  let spotifyController = null;
+  let spotifyReady = false;
+  let pendingSpotifyUri = null;
+  let currentEmoji = '💻';
+  let currentChannelIndex = 0;
+  function loadSpotifyIframeApi() {
+    const script = document.createElement('script');
+    script.src = 'https://open.spotify.com/embed/iframe-api/v1';
+    script.async = true;
+    document.body.appendChild(script);
+  }
+  window.onSpotifyIframeApiReady = (IFrameAPI) => {
+    const element = document.getElementById('spotifyEmbed');
+    if (!element) return;
+    const initialUri = pendingSpotifyUri || RADIO_STATIONS['💻'].channels[0].uri;
+    IFrameAPI.createController(element, { uri: initialUri, width: '100%', height: '80' }, (controller) => {
+      spotifyController = controller;
+      spotifyReady = true;
+      pendingSpotifyUri = null;
+    });
+  };
+  function renderPodcasts(emoji) {
+    const list = PODCASTS_BY_THEME[emoji] || [];
+    const wrap = document.getElementById('radioPodcasts');
+    if (!wrap) return;
+    const lang = document.documentElement.lang === 'en' ? 'en' : 'es';
+    const labelEs = 'Podcasts recomendados de esta temática:';
+    const labelEn = 'Recommended podcasts for this theme:';
+    const labelHtml = '<span class="radio-podcasts-label note" data-es="' + labelEs + '" data-en="' + labelEn + '">' + (lang === 'en' ? labelEn : labelEs) + '</span>';
+    const linksHtml = list.map((p) => '<a class="radio-podcast-link" href="' + p.url + '" target="_blank" rel="noopener">🎙️ ' + p.title + '</a>').join('');
+    wrap.innerHTML = labelHtml + linksHtml;
+  }
+  function renderChannels(channels) {
+    const wrap = document.getElementById('radioChannels');
+    if (!wrap) return;
+    if (!channels || channels.length < 2) {
+      wrap.innerHTML = '';
+      wrap.hidden = true;
+      return;
+    }
+    wrap.hidden = false;
+    wrap.innerHTML = channels.map((c, i) =>
+      '<button type="button" class="radio-channel-btn' + (i === 0 ? ' active' : '') + '" onclick="selectRadioChannel(' + i + ')">' + c.label + '</button>'
+    ).join('');
+  }
+  function playChannel(index) {
+    const data = RADIO_STATIONS[currentEmoji] || RADIO_STATIONS['💻'];
+    const channel = (data.channels && (data.channels[index] || data.channels[0]));
+    if (!channel) return;
+    if (spotifyReady && spotifyController) spotifyController.loadUri(channel.uri);
+    else pendingSpotifyUri = channel.uri;
+  }
+  function selectRadioChannel(index) {
+    currentChannelIndex = index;
+    document.querySelectorAll('#radioChannels .radio-channel-btn').forEach((btn, i) => btn.classList.toggle('active', i === index));
+    playChannel(index);
+  }
+  function updateRadioPlayer(emoji) {
+    const data = RADIO_STATIONS[emoji] || RADIO_STATIONS['💻'];
+    currentEmoji = emoji;
+    currentChannelIndex = 0;
+    const emojiEl = document.getElementById('radioEmoji');
+    const nameEl = document.getElementById('radioStationName');
+    if (emojiEl) emojiEl.textContent = emoji;
+    if (nameEl) nameEl.textContent = data.station;
+    renderChannels(data.channels);
+    playChannel(0);
+    renderPodcasts(emoji);
+  }
+  function togglePodcasts() {
+    document.getElementById('radioPodcasts').classList.toggle('open');
+  }
+  function toggleRadioPlayer(forceOpen) {
+    const player = document.getElementById('radioPlayer');
+    const reopen = document.getElementById('radioReopen');
+    const shouldMinimize = forceOpen === true ? false : !player.classList.contains('minimized');
+    player.classList.toggle('minimized', shouldMinimize);
+    reopen.classList.toggle('show', shouldMinimize);
+  }
+  window.updateRadioPlayer = updateRadioPlayer;
+  loadSpotifyIframeApi();
+  updateRadioPlayer(document.getElementById('themeTrigger').textContent.trim());
 
   // proyectos del Portfolio: datos + tarjetas + filtro por categoría + pop-up de detalle
   (function () {
