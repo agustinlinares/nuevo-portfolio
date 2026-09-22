@@ -139,6 +139,24 @@
   .theme-menu span.active { background: color-mix(in srgb, var(--accent) 26%, transparent); }
   .mini-btn { height:32px; display:flex; align-items:center; justify-content:center; border:1px solid var(--border); background:var(--surface); border-radius:999px; padding:0 12px; font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--text); cursor:pointer; }
   .icon-btn { width:32px; height:32px; display:flex; align-items:center; justify-content:center; border-radius:999px; background:var(--surface); border:1px solid var(--border); font-size:15px; cursor:pointer; }
+  .mode-picker { position:relative; }
+  .mode-trigger { display:flex; align-items:center; gap:7px; height:32px; padding:0 14px; border-radius:999px; background:var(--surface); border:1px solid var(--border); font-family:'Inter',sans-serif; font-size:13px; font-weight:600; color:var(--text); cursor:pointer; white-space:nowrap; }
+  .mode-trigger:hover { border-color:var(--accent); color:var(--accent); }
+  .mode-trigger-icon, .mode-option-icon, .mode-check { display:flex; flex-shrink:0; }
+  .mode-trigger-icon { width:15px; height:15px; }
+  .mode-trigger-icon svg, .mode-option-icon svg, .mode-check svg { width:100%; height:100%; }
+  .mode-chevron { width:13px; height:13px; transition:transform .2s ease; flex-shrink:0; }
+  .mode-trigger[aria-expanded="true"] .mode-chevron { transform:rotate(180deg); }
+  .mode-menu { position:absolute; top:calc(100% + 8px); right:0; display:none; flex-direction:column; min-width:170px; background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:6px; box-shadow:var(--shadow); z-index:20; }
+  .mode-menu.open { display:flex; }
+  .mode-option { display:flex; align-items:center; gap:9px; padding:9px 10px; border-radius:10px; font-size:13px; font-weight:500; color:var(--text); cursor:pointer; }
+  .mode-option-icon { width:16px; height:16px; }
+  .mode-option-label { flex:1; }
+  .mode-check { width:15px; height:15px; opacity:0; color:var(--accent); }
+  .mode-option:hover { background: color-mix(in srgb, var(--accent) 14%, transparent); }
+  .mode-option.active { background: color-mix(in srgb, var(--accent) 20%, transparent); color:var(--accent); }
+  .mode-option.active .mode-check { opacity:1; }
+  @media (max-width:480px) { .mode-trigger { padding:0 10px; } .mode-trigger-label { display:none; } }
   .nav-toggle { display:none; color:var(--text); }
   .nav-toggle svg { width:18px; height:18px; }
   @media (max-width:900px) {
@@ -235,12 +253,25 @@
   .hero-socials a img { width:18px; height:18px; object-fit:contain; }
   .social-chip-icon { width:32px; height:32px; border-radius:999px; background:#fff; border:1px solid var(--border); display:flex; align-items:center; justify-content:center; margin:0 auto 8px; }
   .social-chip-icon img { width:16px; height:16px; object-fit:contain; }
-  .hero-photo-wrap { display:flex; justify-content:center; }
-  .hero-photo { position:relative; width:220px; height:220px; border-radius:999px; background:var(--surface); border:2px solid var(--accent); box-shadow:0 0 0 6px color-mix(in srgb, var(--accent) 16%, transparent), 0 0 40px color-mix(in srgb, var(--accent) 25%, transparent); display:flex; align-items:center; justify-content:center; font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--text-2); text-align:center; padding:16px; overflow:hidden; transition:box-shadow .3s ease; cursor:pointer; }
+  .hero-photo-wrap { display:flex; justify-content:center; perspective:1000px; }
+  .hero-photo { position:relative; width:290px; height:290px; border-radius:999px; background:var(--surface); border:2px solid var(--accent); box-shadow:0 0 0 6px color-mix(in srgb, var(--accent) 20%, transparent), 0 0 0 13px color-mix(in srgb, var(--accent-2) 12%, transparent), 0 0 40px color-mix(in srgb, var(--accent) 25%, transparent), 0 0 70px color-mix(in srgb, var(--accent-2) 16%, transparent); display:flex; align-items:center; justify-content:center; font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--text-2); text-align:center; padding:16px; overflow:hidden; transition:box-shadow .3s ease, transform .12s ease-out; transform-style:preserve-3d; cursor:pointer; animation:heroHaloPulse 4s ease-in-out infinite; }
+  @keyframes heroHaloPulse {
+    0%, 100% { box-shadow:0 0 0 6px color-mix(in srgb, var(--accent) 20%, transparent), 0 0 0 13px color-mix(in srgb, var(--accent-2) 12%, transparent), 0 0 40px color-mix(in srgb, var(--accent) 25%, transparent), 0 0 70px color-mix(in srgb, var(--accent-2) 16%, transparent); }
+    50% { box-shadow:0 0 0 7px color-mix(in srgb, var(--accent) 30%, transparent), 0 0 0 16px color-mix(in srgb, var(--accent-2) 20%, transparent), 0 0 55px color-mix(in srgb, var(--accent) 35%, transparent), 0 0 95px color-mix(in srgb, var(--accent-2) 24%, transparent); }
+  }
+  @media (prefers-reduced-motion: reduce) { .hero-photo { animation:none !important; } }
+  .hero-photo-bg, .hero-photo-fg { position:absolute; top:50%; left:50%; width:112%; height:112%; object-fit:cover; object-position:100% 50%; pointer-events:none; will-change:transform; transition:transform .12s ease-out; transform:translate(-50%,-50%); }
+  .hero-photo-bg { filter:saturate(1.05); }
+  @media (prefers-reduced-motion: reduce) { .hero-photo-bg, .hero-photo-fg { transition:none !important; } }
   .hero-photo::after { content:''; position:absolute; inset:0; border-radius:999px; background:linear-gradient(135deg, var(--accent), var(--accent-2)); mix-blend-mode:color; opacity:0; transition:opacity .35s ease, background .3s ease; }
-  .hero-photo:hover::after { opacity:.85; }
-  .hero-photo:hover { box-shadow:0 0 0 8px color-mix(in srgb, var(--accent) 26%, transparent), 0 0 55px color-mix(in srgb, var(--accent-2) 45%, transparent); }
-  @media (max-width: 720px) { .hero-grid { grid-template-columns:1fr; } .hero-photo-wrap { order:-1; } .hero-photo { width:160px; height:160px; } }
+  .hero-photo:hover::after { opacity:.16; }
+  .hero-photo:hover { animation-play-state:paused; box-shadow:0 0 0 8px color-mix(in srgb, var(--accent) 26%, transparent), 0 0 55px color-mix(in srgb, var(--accent-2) 45%, transparent); }
+  .hero-photo-frame { position:relative; display:inline-block; }
+  .hero-theme-picker { position:absolute; right:2px; bottom:2px; z-index:6; }
+  .hero-theme-picker .theme-trigger { width:36px; height:36px; font-size:17px; border:2px solid var(--bg); box-shadow:0 2px 8px rgba(0,0,0,.3); }
+  .hero-theme-picker .theme-menu { top:auto; bottom:calc(100% + 10px); right:0; }
+  @media (max-width: 720px) { .hero-theme-picker .theme-trigger { width:28px; height:28px; font-size:13px; } }
+  @media (max-width: 720px) { .hero-grid { grid-template-columns:1fr; } .hero-photo-wrap { order:-1; } .hero-photo { width:200px; height:200px; } }
   .marquee { margin:0 0 8px; padding:20px 0; overflow:hidden; cursor:grab; -webkit-mask-image:linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent); mask-image:linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent); }
   .marquee.dragging { cursor:grabbing; }
   .marquee-track { display:flex; gap:10px; width:max-content; will-change:transform; }
@@ -427,6 +458,15 @@
   .proj-card:hover { transform:translateY(-5px); box-shadow:0 16px 30px color-mix(in srgb, var(--accent) 16%, transparent); border-color:color-mix(in srgb, var(--accent) 35%, var(--border)); }
   .proj-img { position:relative; height:150px; flex-shrink:0; background:linear-gradient(135deg, color-mix(in srgb, var(--accent) 55%, var(--surface)), color-mix(in srgb, var(--accent-2) 45%, var(--surface))); display:flex; align-items:center; justify-content:center; }
   .proj-badge { position:absolute; top:12px; left:12px; font-family:'Inter',sans-serif; font-size:11px; font-weight:600; color:#fff; background:rgba(6,9,15,.5); backdrop-filter:blur(4px); padding:5px 12px; border-radius:999px; }
+  .proj-index { position:absolute; top:6px; right:12px; font-family:'JetBrains Mono',monospace; font-size:32px; font-weight:700; color:rgba(255,255,255,.32); line-height:1; user-select:none; pointer-events:none; }
+  .proj-img img.proj-media-img, .proj-img video.proj-media-video { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
+  .proj-img[data-media-mode="video"] .proj-media-img { display:none; }
+  .proj-img:not([data-media-mode="video"]) .proj-media-video { display:none; }
+  .proj-media-switch { position:absolute; bottom:10px; right:10px; display:flex; gap:6px; z-index:2; }
+  .proj-media-btn { width:26px; height:26px; border-radius:7px; border:1px solid rgba(255,255,255,.35); background:rgba(6,9,15,.55); backdrop-filter:blur(4px); color:#fff; display:flex; align-items:center; justify-content:center; cursor:pointer; opacity:.75; transition:opacity .15s, background .15s; }
+  .proj-media-btn svg { width:13px; height:13px; }
+  .proj-media-btn:hover { opacity:1; }
+  .proj-media-btn.active { opacity:1; background:var(--accent); border-color:var(--accent); }
   .proj-icon { width:38px; height:38px; color:#fff; opacity:.95; stroke-width:1.6; }
   .proj-icon-badge { width:46px; height:46px; border-radius:12px; background:#fff; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 14px rgba(0,0,0,.18); }
   .proj-icon-badge img { width:28px; height:28px; object-fit:contain; }
@@ -634,22 +674,30 @@
       <a href="#contacto" data-es="Contacto" data-en="Contact">Contacto</a>
     </nav>
     <div class="controls">
-      <div class="theme-picker">
-        <div class="theme-trigger" id="themeTrigger" title="Cambiar temática" onclick="toggleThemeMenu()">💻</div>
-        <div class="theme-menu" id="themeMenu">
-          <span class="active" data-emoji="💻" onclick="selectTheme('💻')">💻</span>
-          <span data-emoji="🫒" onclick="selectTheme('🫒')">🫒</span>
-          <span data-emoji="⚽" onclick="selectTheme('⚽')">⚽</span>
-          <span data-emoji="🚗" onclick="selectTheme('🚗')">🚗</span>
-          <span data-emoji="🎸" onclick="selectTheme('🎸')">🎸</span>
-          <span data-emoji="🎮" onclick="selectTheme('🎮')">🎮</span>
-          <span data-emoji="🕹️" onclick="selectTheme('🕹️')">🕹️</span>
-          <span data-emoji="🎱" onclick="selectTheme('🎱')">🎱</span>
-          <span data-emoji="🀄" onclick="selectTheme('🀄')">🀄</span>
-          <span data-emoji="🎥" onclick="selectTheme('🎥')">🎥</span>
+      <div class="mode-picker" id="modePicker">
+        <button type="button" class="mode-trigger" id="modeTrigger" onclick="toggleModeMenu()" title="Cambiar apariencia" aria-haspopup="true" aria-expanded="false">
+          <span class="mode-trigger-icon" id="modeTriggerIcon"></span>
+          <span class="mode-trigger-label" id="modeTriggerLabel"></span>
+          <svg class="mode-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="mode-menu" id="modeMenu">
+          <div class="mode-option" data-mode="light" onclick="setColorMode('light')">
+            <span class="mode-option-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg></span>
+            <span class="mode-option-label" data-es="Claro" data-en="Light">Claro</span>
+            <span class="mode-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+          </div>
+          <div class="mode-option" data-mode="dark" onclick="setColorMode('dark')">
+            <span class="mode-option-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></span>
+            <span class="mode-option-label" data-es="Oscuro" data-en="Dark">Oscuro</span>
+            <span class="mode-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+          </div>
+          <div class="mode-option" data-mode="system" onclick="setColorMode('system')">
+            <span class="mode-option-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></span>
+            <span class="mode-option-label" data-es="Sistema" data-en="System">Sistema</span>
+            <span class="mode-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+          </div>
         </div>
       </div>
-      <div class="icon-btn" id="modeBtn" onclick="toggleMode()" title="Cambiar a claro/oscuro">☀️</div>
       <button class="mini-btn" id="langBtn" onclick="toggleLang()">EN</button>
       <div class="cv-picker">
         <button class="cv-trigger" id="cvTrigger" onclick="toggleCvMenu('cvMenu')">⬇ CV</button>
@@ -675,7 +723,29 @@
         <div class="hero-socials" id="heroSocials"></div>
       </div>
       <div class="hero-photo-wrap">
-        <div class="hero-photo" data-es="foto de perfil" data-en="profile photo">foto de perfil</div>
+        <div class="hero-photo-frame">
+          <div class="hero-photo">
+            <img class="hero-photo-bg" src="foto-perfil-bg.jpg" alt="" aria-hidden="true" loading="lazy">
+            <img class="hero-photo-fg" src="foto-perfil-fg.png" alt="Agustín Linares Carrera" loading="lazy">
+          </div>
+          <div class="hero-theme-picker">
+            <div class="theme-picker">
+              <div class="theme-trigger" id="themeTrigger" title="Cambiar temática" onclick="toggleThemeMenu()">💻</div>
+              <div class="theme-menu" id="themeMenu">
+                <span class="active" data-emoji="💻" title="Programación / SAP" onclick="selectTheme('💻')">💻</span>
+                <span data-emoji="🫒" title="Jaén" onclick="selectTheme('🫒')">🫒</span>
+                <span data-emoji="⚽" title="Real Betis" onclick="selectTheme('⚽')">⚽</span>
+                <span data-emoji="🚗" title="Motorsport" onclick="selectTheme('🚗')">🚗</span>
+                <span data-emoji="🎸" title="Música" onclick="selectTheme('🎸')">🎸</span>
+                <span data-emoji="🎮" title="Juegos modernos" onclick="selectTheme('🎮')">🎮</span>
+                <span data-emoji="🕹️" title="Retro" onclick="selectTheme('🕹️')">🕹️</span>
+                <span data-emoji="🎱" title="Juegos de mesa" onclick="selectTheme('🎱')">🎱</span>
+                <span data-emoji="🀄" title="Manga / Anime" onclick="selectTheme('🀄')">🀄</span>
+                <span data-emoji="🎥" title="Cine" onclick="selectTheme('🎥')">🎥</span>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
     <div class="marquee" id="marqueeWrap">
@@ -740,7 +810,7 @@
             <div class="profile-info-text">
               <strong>Full-stack</strong>
               <span>Backend &amp; Frontend</span>
-              <span class="profile-info-sub" data-countup="51" data-es="51 tecnologías" data-en="51 technologies">51 tecnologías</span>
+              <span class="profile-info-sub" id="techCountStat" data-countup="51" data-es="51 tecnologías" data-en="51 technologies">51 tecnologías</span>
             </div>
           </div>
         </div>
@@ -940,371 +1010,7 @@
   <section id="stack">
       <h2 class="stack-heading" data-es="Las herramientas con las que construyo." data-en="The tools I build with.">Las herramientas con las que construyo.</h2>
       <div class="skills-terminal">
-        <div class="skills-terminal-body">
-          <div class="skills-category">
-            <div class="stack-card-header">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="8 6 2 12 8 18"/><polyline points="16 6 22 12 16 18"/></svg>
-              <span class="stack-card-label" data-es="Lenguajes y frameworks" data-en="Languages & frameworks">Lenguajes y frameworks</span>
-            </div>
-            <div class="skills-grid">
-              <div class="skill-row">
-                <span class="skill-row-icon"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg" alt="JavaScript" loading="lazy"></span>
-                <span class="skill-row-name">JavaScript</span>
-                <span class="skill-row-bar"><span class="skill-row-bar-fill" style="width:92%"></span></span>
-                <span class="skill-row-level skill-level-avanzado" data-es="Avanzado" data-en="Advanced">Avanzado</span>
-              </div>
-              <div class="skill-row">
-                <span class="skill-row-icon"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/typescript/typescript-original.svg" alt="TypeScript" loading="lazy"></span>
-                <span class="skill-row-name">TypeScript</span>
-                <span class="skill-row-bar"><span class="skill-row-bar-fill" style="width:58%"></span></span>
-                <span class="skill-row-level skill-level-intermedio" data-es="Intermedio" data-en="Intermediate">Intermedio</span>
-              </div>
-              <div class="skill-row">
-                <span class="skill-row-icon"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/html5/html5-original.svg" alt="HTML5" loading="lazy"></span>
-                <span class="skill-row-name">HTML5</span>
-                <span class="skill-row-bar"><span class="skill-row-bar-fill" style="width:92%"></span></span>
-                <span class="skill-row-level skill-level-avanzado" data-es="Avanzado" data-en="Advanced">Avanzado</span>
-              </div>
-              <div class="skill-row">
-                <span class="skill-row-icon"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/java/java-original.svg" alt="Java" loading="lazy"></span>
-                <span class="skill-row-name">Java</span>
-                <span class="skill-row-bar"><span class="skill-row-bar-fill" style="width:28%"></span></span>
-                <span class="skill-row-level skill-level-basico" data-es="Básico" data-en="Basic">Básico</span>
-              </div>
-              <div class="skill-row">
-                <span class="skill-row-icon"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg" alt="Python" loading="lazy"></span>
-                <span class="skill-row-name">Python</span>
-                <span class="skill-row-bar"><span class="skill-row-bar-fill" style="width:28%"></span></span>
-                <span class="skill-row-level skill-level-basico" data-es="Básico" data-en="Basic">Básico</span>
-              </div>
-              <div class="skill-row">
-                <span class="skill-row-icon"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/kotlin/kotlin-original.svg" alt="Kotlin" loading="lazy"></span>
-                <span class="skill-row-name">Kotlin</span>
-                <span class="skill-row-bar"><span class="skill-row-bar-fill" style="width:58%"></span></span>
-                <span class="skill-row-level skill-level-intermedio" data-es="Intermedio" data-en="Intermediate">Intermedio</span>
-              </div>
-              <div class="skill-row">
-                <span class="skill-row-icon"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/dotnetcore/dotnetcore-original.svg" alt="C# / .NET" loading="lazy"></span>
-                <span class="skill-row-name">C# / .NET</span>
-                <span class="skill-row-bar"><span class="skill-row-bar-fill" style="width:92%"></span></span>
-                <span class="skill-row-level skill-level-avanzado" data-es="Avanzado" data-en="Advanced">Avanzado</span>
-              </div>
-              <div class="skill-row">
-                <span class="skill-row-icon"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg" alt="React" loading="lazy"></span>
-                <span class="skill-row-name">React</span>
-                <span class="skill-row-bar"><span class="skill-row-bar-fill" style="width:92%"></span></span>
-                <span class="skill-row-level skill-level-avanzado" data-es="Avanzado" data-en="Advanced">Avanzado</span>
-              </div>
-              <div class="skill-row">
-                <span class="skill-row-icon"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg" alt="React Native" loading="lazy"></span>
-                <span class="skill-row-name">React Native</span>
-                <span class="skill-row-bar"><span class="skill-row-bar-fill" style="width:92%"></span></span>
-                <span class="skill-row-level skill-level-avanzado" data-es="Avanzado" data-en="Advanced">Avanzado</span>
-              </div>
-              <div class="skill-row">
-                <span class="skill-row-icon">🧭</span>
-                <span class="skill-row-name">React Navigation</span>
-                <span class="skill-row-bar"><span class="skill-row-bar-fill" style="width:92%"></span></span>
-                <span class="skill-row-level skill-level-avanzado" data-es="Avanzado" data-en="Advanced">Avanzado</span>
-              </div>
-              <div class="skill-row">
-                <span class="skill-row-icon">🐻</span>
-                <span class="skill-row-name">Zustand</span>
-                <span class="skill-row-bar"><span class="skill-row-bar-fill" style="width:58%"></span></span>
-                <span class="skill-row-level skill-level-intermedio" data-es="Intermedio" data-en="Intermediate">Intermedio</span>
-              </div>
-              <div class="skill-row">
-                <span class="skill-row-icon"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nextjs/nextjs-original.svg" alt="Next.js" loading="lazy"></span>
-                <span class="skill-row-name">Next.js</span>
-                <span class="skill-row-bar"><span class="skill-row-bar-fill" style="width:28%"></span></span>
-                <span class="skill-row-level skill-level-basico" data-es="Básico" data-en="Basic">Básico</span>
-              </div>
-              <div class="skill-row">
-                <span class="skill-row-icon"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nodejs/nodejs-original.svg" alt="Node.js" loading="lazy"></span>
-                <span class="skill-row-name">Node.js</span>
-                <span class="skill-row-bar"><span class="skill-row-bar-fill" style="width:58%"></span></span>
-                <span class="skill-row-level skill-level-intermedio" data-es="Intermedio" data-en="Intermediate">Intermedio</span>
-              </div>
-              <div class="skill-row">
-                <span class="skill-row-icon"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/express/express-original.svg" alt="Express" loading="lazy"></span>
-                <span class="skill-row-name">Express</span>
-                <span class="skill-row-bar"><span class="skill-row-bar-fill" style="width:58%"></span></span>
-                <span class="skill-row-level skill-level-intermedio" data-es="Intermedio" data-en="Intermediate">Intermedio</span>
-              </div>
-              <div class="skill-row">
-                <span class="skill-row-icon"><img src="https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/fastapi.svg" alt="FastAPI" loading="lazy"></span>
-                <span class="skill-row-name">FastAPI</span>
-                <span class="skill-row-bar"><span class="skill-row-bar-fill" style="width:28%"></span></span>
-                <span class="skill-row-level skill-level-basico" data-es="Básico" data-en="Basic">Básico</span>
-              </div>
-              <div class="skill-row">
-                <span class="skill-row-icon"><img src="https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/springboot.svg" alt="Spring Boot" loading="lazy"></span>
-                <span class="skill-row-name">Spring Boot</span>
-                <span class="skill-row-bar"><span class="skill-row-bar-fill" style="width:28%"></span></span>
-                <span class="skill-row-level skill-level-basico" data-es="Básico" data-en="Basic">Básico</span>
-              </div>
-            </div>
-          </div>
-          <div class="skills-category">
-            <div class="stack-card-header">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="7" width="10" height="10" rx="2"/><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/></svg>
-              <span class="stack-card-label" data-es="IA" data-en="AI">IA</span>
-            </div>
-            <div class="skills-grid">
-              <div class="skill-row">
-                <span class="skill-row-icon">🤖</span>
-                <span class="skill-row-name">ChatGPT / Claude</span>
-                <span class="skill-row-bar"><span class="skill-row-bar-fill" style="width:58%"></span></span>
-                <span class="skill-row-level skill-level-intermedio" data-es="Intermedio" data-en="Intermediate">Intermedio</span>
-              </div>
-              <div class="skill-row">
-                <span class="skill-row-icon"><img src="https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/githubcopilot.svg" alt="GitHub Copilot" loading="lazy"></span>
-                <span class="skill-row-name">GitHub Copilot</span>
-                <span class="skill-row-bar"><span class="skill-row-bar-fill" style="width:58%"></span></span>
-                <span class="skill-row-level skill-level-intermedio" data-es="Intermedio" data-en="Intermediate">Intermedio</span>
-              </div>
-            </div>
-          </div>
-          <div class="skills-category">
-            <div class="stack-card-header">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-              <span class="stack-card-label" data-es="Testing" data-en="Testing">Testing</span>
-            </div>
-            <div class="skills-grid">
-              <div class="skill-row">
-                <span class="skill-row-icon"><img src="https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/vitest.svg" alt="Vitest" loading="lazy"></span>
-                <span class="skill-row-name">Vitest</span>
-                <span class="skill-row-bar"><span class="skill-row-bar-fill" style="width:58%"></span></span>
-                <span class="skill-row-level skill-level-intermedio" data-es="Intermedio" data-en="Intermediate">Intermedio</span>
-              </div>
-              <div class="skill-row">
-                <span class="skill-row-icon"><img src="https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/jest.svg" alt="Jest" loading="lazy"></span>
-                <span class="skill-row-name">Jest</span>
-                <span class="skill-row-bar"><span class="skill-row-bar-fill" style="width:58%"></span></span>
-                <span class="skill-row-level skill-level-intermedio" data-es="Intermedio" data-en="Intermediate">Intermedio</span>
-              </div>
-              <div class="skill-row">
-                <span class="skill-row-icon"><img src="https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/pytest.svg" alt="pytest" loading="lazy"></span>
-                <span class="skill-row-name">pytest</span>
-                <span class="skill-row-bar"><span class="skill-row-bar-fill" style="width:58%"></span></span>
-                <span class="skill-row-level skill-level-intermedio" data-es="Intermedio" data-en="Intermediate">Intermedio</span>
-              </div>
-            </div>
-          </div>
-          <div class="skills-category">
-            <div class="stack-card-header">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v12c0 1.66 3.58 3 8 3s8-1.34 8-3V6"/><path d="M4 12c0 1.66 3.58 3 8 3s8-1.34 8-3"/></svg>
-              <span class="stack-card-label" data-es="Bases de datos" data-en="Databases">Bases de datos</span>
-            </div>
-            <div class="skills-grid">
-              <div class="skill-row">
-                <span class="skill-row-icon"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/postgresql/postgresql-original.svg" alt="PostgreSQL" loading="lazy"></span>
-                <span class="skill-row-name">PostgreSQL</span>
-                <span class="skill-row-bar"><span class="skill-row-bar-fill" style="width:58%"></span></span>
-                <span class="skill-row-level skill-level-intermedio" data-es="Intermedio" data-en="Intermediate">Intermedio</span>
-              </div>
-              <div class="skill-row">
-                <span class="skill-row-icon"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/microsoftsqlserver/microsoftsqlserver-plain.svg" alt="SQL Server" loading="lazy"></span>
-                <span class="skill-row-name">SQL Server</span>
-                <span class="skill-row-bar"><span class="skill-row-bar-fill" style="width:58%"></span></span>
-                <span class="skill-row-level skill-level-intermedio" data-es="Intermedio" data-en="Intermediate">Intermedio</span>
-              </div>
-              <div class="skill-row">
-                <span class="skill-row-icon"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mysql/mysql-original.svg" alt="MySQL" loading="lazy"></span>
-                <span class="skill-row-name">MySQL</span>
-                <span class="skill-row-bar"><span class="skill-row-bar-fill" style="width:58%"></span></span>
-                <span class="skill-row-level skill-level-intermedio" data-es="Intermedio" data-en="Intermediate">Intermedio</span>
-              </div>
-              <div class="skill-row">
-                <span class="skill-row-icon"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mongodb/mongodb-original.svg" alt="MongoDB" loading="lazy"></span>
-                <span class="skill-row-name">MongoDB</span>
-                <span class="skill-row-bar"><span class="skill-row-bar-fill" style="width:58%"></span></span>
-                <span class="skill-row-level skill-level-intermedio" data-es="Intermedio" data-en="Intermediate">Intermedio</span>
-              </div>
-              <div class="skill-row">
-                <span class="skill-row-icon"><img src="https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/supabase.svg" alt="Supabase" loading="lazy"></span>
-                <span class="skill-row-name">Supabase</span>
-                <span class="skill-row-bar"><span class="skill-row-bar-fill" style="width:58%"></span></span>
-                <span class="skill-row-level skill-level-intermedio" data-es="Intermedio" data-en="Intermediate">Intermedio</span>
-              </div>
-              <div class="skill-row">
-                <span class="skill-row-icon"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/sqlite/sqlite-original.svg" alt="SQLite" loading="lazy"></span>
-                <span class="skill-row-name">SQLite</span>
-                <span class="skill-row-bar"><span class="skill-row-bar-fill" style="width:58%"></span></span>
-                <span class="skill-row-level skill-level-intermedio" data-es="Intermedio" data-en="Intermediate">Intermedio</span>
-              </div>
-              <div class="skill-row">
-                <span class="skill-row-icon"><img src="https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/oracle.svg" alt="Oracle SQL" loading="lazy"></span>
-                <span class="skill-row-name">Oracle SQL</span>
-                <span class="skill-row-bar"><span class="skill-row-bar-fill" style="width:58%"></span></span>
-                <span class="skill-row-level skill-level-intermedio" data-es="Intermedio" data-en="Intermediate">Intermedio</span>
-              </div>
-            </div>
-          </div>
-          <div class="skills-category">
-            <div class="stack-card-header">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a10 10 0 1 0 0 20c1.5 0 2-1 2-2 0-.6-.2-1-.5-1.4-.4-.5-.2-1.2.4-1.4.6-.2 1.1-.2 1.6-.2A5 5 0 0 0 20 12 10 10 0 0 0 12 2Z"/><circle cx="7.5" cy="10.5" r="1.1" fill="currentColor" stroke="none"/><circle cx="12" cy="7" r="1.1" fill="currentColor" stroke="none"/><circle cx="16" cy="10" r="1.1" fill="currentColor" stroke="none"/></svg>
-              <span class="stack-card-label" data-es="Estilos" data-en="Styles">Estilos</span>
-            </div>
-            <div class="skills-grid">
-              <div class="skill-row">
-                <span class="skill-row-icon"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/css3/css3-original.svg" alt="CSS3" loading="lazy"></span>
-                <span class="skill-row-name">CSS3</span>
-                <span class="skill-row-bar"><span class="skill-row-bar-fill" style="width:92%"></span></span>
-                <span class="skill-row-level skill-level-avanzado" data-es="Avanzado" data-en="Advanced">Avanzado</span>
-              </div>
-              <div class="skill-row">
-                <span class="skill-row-icon"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/tailwindcss/tailwindcss-original.svg" alt="Tailwind CSS" loading="lazy"></span>
-                <span class="skill-row-name">Tailwind CSS</span>
-                <span class="skill-row-bar"><span class="skill-row-bar-fill" style="width:58%"></span></span>
-                <span class="skill-row-level skill-level-intermedio" data-es="Intermedio" data-en="Intermediate">Intermedio</span>
-              </div>
-              <div class="skill-row">
-                <span class="skill-row-icon"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/bootstrap/bootstrap-original.svg" alt="Bootstrap" loading="lazy"></span>
-                <span class="skill-row-name">Bootstrap</span>
-                <span class="skill-row-bar"><span class="skill-row-bar-fill" style="width:58%"></span></span>
-                <span class="skill-row-level skill-level-intermedio" data-es="Intermedio" data-en="Intermediate">Intermedio</span>
-              </div>
-            </div>
-          </div>
-          <div class="skills-category">
-            <div class="stack-card-header">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 3.5a4 4 0 0 0-4.9 5.2L3 15.3V19h3.7l6.6-6.6a4 4 0 0 0 5.2-4.9l-3 3-2-2Z"/></svg>
-              <span class="stack-card-label" data-es="Entornos y herramientas" data-en="Environments & tools">Entornos y herramientas</span>
-            </div>
-            <div class="skills-grid">
-              <div class="skill-row">
-                <span class="skill-row-icon"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/git/git-original.svg" alt="Git" loading="lazy"></span>
-                <span class="skill-row-name">Git</span>
-                <span class="skill-row-bar"><span class="skill-row-bar-fill" style="width:92%"></span></span>
-                <span class="skill-row-level skill-level-avanzado" data-es="Avanzado" data-en="Advanced">Avanzado</span>
-              </div>
-              <div class="skill-row">
-                <span class="skill-row-icon"><img src="https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/github.svg" alt="GitHub" loading="lazy"></span>
-                <span class="skill-row-name">GitHub</span>
-                <span class="skill-row-bar"><span class="skill-row-bar-fill" style="width:92%"></span></span>
-                <span class="skill-row-level skill-level-avanzado" data-es="Avanzado" data-en="Advanced">Avanzado</span>
-              </div>
-              <div class="skill-row">
-                <span class="skill-row-icon"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/docker/docker-original.svg" alt="Docker" loading="lazy"></span>
-                <span class="skill-row-name">Docker</span>
-                <span class="skill-row-bar"><span class="skill-row-bar-fill" style="width:58%"></span></span>
-                <span class="skill-row-level skill-level-intermedio" data-es="Intermedio" data-en="Intermediate">Intermedio</span>
-              </div>
-              <div class="skill-row">
-                <span class="skill-row-icon"><img src="https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/vercel.svg" alt="Vercel" loading="lazy"></span>
-                <span class="skill-row-name">Vercel</span>
-                <span class="skill-row-bar"><span class="skill-row-bar-fill" style="width:58%"></span></span>
-                <span class="skill-row-level skill-level-intermedio" data-es="Intermedio" data-en="Intermediate">Intermedio</span>
-              </div>
-              <div class="skill-row">
-                <span class="skill-row-icon"><img src="https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/powerbi.svg" alt="Power BI" loading="lazy"></span>
-                <span class="skill-row-name">Power BI</span>
-                <span class="skill-row-bar"><span class="skill-row-bar-fill" style="width:58%"></span></span>
-                <span class="skill-row-level skill-level-intermedio" data-es="Intermedio" data-en="Intermediate">Intermedio</span>
-              </div>
-              <div class="skill-row">
-                <span class="skill-row-icon"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/amazonwebservices/amazonwebservices-original.svg" alt="AWS" loading="lazy"></span>
-                <span class="skill-row-name">AWS</span>
-                <span class="skill-row-bar"><span class="skill-row-bar-fill" style="width:28%"></span></span>
-                <span class="skill-row-level skill-level-basico" data-es="Básico" data-en="Basic">Básico</span>
-              </div>
-              <div class="skill-row">
-                <span class="skill-row-icon"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/apachekafka/apachekafka-original.svg" alt="Kafka" loading="lazy"></span>
-                <span class="skill-row-name">Kafka</span>
-                <span class="skill-row-bar"><span class="skill-row-bar-fill" style="width:28%"></span></span>
-                <span class="skill-row-level skill-level-basico" data-es="Básico" data-en="Basic">Básico</span>
-              </div>
-              <div class="skill-row">
-                <span class="skill-row-icon"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/flutter/flutter-original.svg" alt="Flutter" loading="lazy"></span>
-                <span class="skill-row-name">Flutter</span>
-                <span class="skill-row-bar"><span class="skill-row-bar-fill" style="width:28%"></span></span>
-                <span class="skill-row-level skill-level-basico" data-es="Básico" data-en="Basic">Básico</span>
-              </div>
-              <div class="skill-row">
-                <span class="skill-row-icon"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/dart/dart-original.svg" alt="Dart" loading="lazy"></span>
-                <span class="skill-row-name">Dart</span>
-                <span class="skill-row-bar"><span class="skill-row-bar-fill" style="width:28%"></span></span>
-                <span class="skill-row-level skill-level-basico" data-es="Básico" data-en="Basic">Básico</span>
-              </div>
-              <div class="skill-row">
-                <span class="skill-row-icon"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/vscode/vscode-original.svg" alt="VS Code" loading="lazy"></span>
-                <span class="skill-row-name">VS Code</span>
-                <span class="skill-row-bar"><span class="skill-row-bar-fill" style="width:92%"></span></span>
-                <span class="skill-row-level skill-level-avanzado" data-es="Avanzado" data-en="Advanced">Avanzado</span>
-              </div>
-              <div class="skill-row">
-                <span class="skill-row-icon"><img src="https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/npm.svg" alt="npm" loading="lazy"></span>
-                <span class="skill-row-name">npm</span>
-                <span class="skill-row-bar"><span class="skill-row-bar-fill" style="width:92%"></span></span>
-                <span class="skill-row-level skill-level-avanzado" data-es="Avanzado" data-en="Advanced">Avanzado</span>
-              </div>
-              <div class="skill-row">
-                <span class="skill-row-icon"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/intellij/intellij-original.svg" alt="IntelliJ IDEA" loading="lazy"></span>
-                <span class="skill-row-name">IntelliJ IDEA</span>
-                <span class="skill-row-bar"><span class="skill-row-bar-fill" style="width:58%"></span></span>
-                <span class="skill-row-level skill-level-intermedio" data-es="Intermedio" data-en="Intermediate">Intermedio</span>
-              </div>
-              <div class="skill-row">
-                <span class="skill-row-icon"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/vitejs/vitejs-original.svg" alt="Vite" loading="lazy"></span>
-                <span class="skill-row-name">Vite</span>
-                <span class="skill-row-bar"><span class="skill-row-bar-fill" style="width:58%"></span></span>
-                <span class="skill-row-level skill-level-intermedio" data-es="Intermedio" data-en="Intermediate">Intermedio</span>
-              </div>
-              <div class="skill-row">
-                <span class="skill-row-icon"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/postman/postman-original.svg" alt="Postman" loading="lazy"></span>
-                <span class="skill-row-name">Postman</span>
-                <span class="skill-row-bar"><span class="skill-row-bar-fill" style="width:58%"></span></span>
-                <span class="skill-row-level skill-level-intermedio" data-es="Intermedio" data-en="Intermediate">Intermedio</span>
-              </div>
-              <div class="skill-row">
-                <span class="skill-row-icon"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/androidstudio/androidstudio-original.svg" alt="Android Studio" loading="lazy"></span>
-                <span class="skill-row-name">Android Studio</span>
-                <span class="skill-row-bar"><span class="skill-row-bar-fill" style="width:28%"></span></span>
-                <span class="skill-row-level skill-level-basico" data-es="Básico" data-en="Basic">Básico</span>
-              </div>
-              <div class="skill-row">
-                <span class="skill-row-icon"><img src="https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/insomnia.svg" alt="Insomnia" loading="lazy"></span>
-                <span class="skill-row-name">Insomnia</span>
-                <span class="skill-row-bar"><span class="skill-row-bar-fill" style="width:28%"></span></span>
-                <span class="skill-row-level skill-level-basico" data-es="Básico" data-en="Basic">Básico</span>
-              </div>
-              <div class="skill-row">
-                <span class="skill-row-icon"><img src="https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/stripe.svg" alt="Stripe" loading="lazy"></span>
-                <span class="skill-row-name">Stripe</span>
-                <span class="skill-row-bar"><span class="skill-row-bar-fill" style="width:58%"></span></span>
-                <span class="skill-row-level skill-level-intermedio" data-es="Intermedio" data-en="Intermediate">Intermedio</span>
-              </div>
-            </div>
-          </div>
-          <div class="skills-category">
-            <div class="stack-card-header">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="3" y1="13" x2="21" y2="13"/></svg>
-              <span class="stack-card-label" data-es="ERP" data-en="ERP">ERP</span>
-            </div>
-            <div class="skills-grid">
-              <div class="skill-row">
-                <span class="skill-row-icon"><img src="https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/sap.svg" alt="SAP HCM" loading="lazy"></span>
-                <span class="skill-row-name">SAP HCM</span>
-                <span class="skill-row-bar"><span class="skill-row-bar-fill" style="width:92%"></span></span>
-                <span class="skill-row-level skill-level-avanzado" data-es="Avanzado" data-en="Advanced">Avanzado</span>
-              </div>
-              <div class="skill-row">
-                <span class="skill-row-icon"><img src="https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/sap.svg" alt="SAP SuccessFactors" loading="lazy"></span>
-                <span class="skill-row-name">SAP SuccessFactors</span>
-                <span class="skill-row-bar"><span class="skill-row-bar-fill" style="width:92%"></span></span>
-                <span class="skill-row-level skill-level-avanzado" data-es="Avanzado" data-en="Advanced">Avanzado</span>
-              </div>
-              <div class="skill-row">
-                <span class="skill-row-icon"><img src="https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/odoo.svg" alt="Odoo" loading="lazy"></span>
-                <span class="skill-row-name">Odoo</span>
-                <span class="skill-row-bar"><span class="skill-row-bar-fill" style="width:92%"></span></span>
-                <span class="skill-row-level skill-level-avanzado" data-es="Avanzado" data-en="Advanced">Avanzado</span>
-              </div>
-            </div>
-          </div>
-          <p class="skills-terminal-footer"><span class="skills-check">✓</span><span data-es="51 tecnologías cargadas" data-en="51 technologies loaded">51 tecnologías cargadas</span></p>
-        </div>
+        <div class="skills-terminal-body" id="skillsTerminalBody"></div>
       </div>
       <div class="github-activity">
         <div class="github-activity-header">
@@ -1482,6 +1188,11 @@
       <div class="exp-tab-panel" id="expPanel-formacion" role="tabpanel" hidden>
         <div class="formacion-timeline">
           <div class="formacion-item">
+            <span class="formacion-date" data-es="sep. 2026 en adelante" data-en="Sep 2026 – present">sep. 2026 en adelante</span>
+            <h3 class="formacion-title" data-es="FP Desarrollo de Aplicaciones Web (DAW)" data-en="Vocational Training in Web Application Development (DAW)">FP Desarrollo de Aplicaciones Web (DAW)</h3>
+            <p class="formacion-school">PrometeoFP · ThePower</p>
+          </div>
+          <div class="formacion-item">
             <span class="formacion-date" data-es="feb. 2025 en adelante" data-en="Feb 2025 – present">feb. 2025 en adelante</span>
             <h3 class="formacion-title" data-es="Máster Desarrollo FullStack" data-en="FullStack Development Master's">Máster Desarrollo FullStack</h3>
             <p class="formacion-school">Universidad Católica San Antonio de Murcia (UCAM) / ThePower</p>
@@ -1503,7 +1214,7 @@
               <li data-es="Bases de datos: modelado, SQL, MySQL" data-en="Databases: modeling, SQL, MySQL">Bases de datos: modelado, SQL, MySQL</li>
             </ul>
             <div class="formacion-actions">
-              <button type="button" class="btn-pill btn-pill-ghost btn-pill-sm" onclick="openPdfModal('tfg-gofight.pdf', 'TFG — GoFight', 'Trabajo de Fin de Grado (FP DAM) desarrollado en equipo: GoFight, una aplicación móvil para la gestión y el seguimiento de entrenamientos de boxeo. Permite registrar rutinas y ejercicios, registrar las sesiones realizadas y consultar el progreso, con un sistema de gamificación basado en rachas y puntos para fomentar la constancia. Desarrollado con Node.js, PostgreSQL y Prisma ORM sobre una arquitectura cliente-servidor.', 'Final Degree Project (Vocational Training, DAM) built as a team: GoFight, a mobile app for managing and tracking boxing training. It lets users browse training routines and exercises, log completed sessions and track progress, with a gamification system based on streaks and points to encourage consistency. Built with Node.js, PostgreSQL and Prisma ORM on a client-server architecture.')" data-es="Ver TFM" data-en="View final project">Ver TFM</button>
+              <button type="button" class="btn-pill btn-pill-ghost btn-pill-sm" onclick="openPdfModal('tfg-gofight.pdf', 'TFG — GoFight', 'Trabajo de Fin de Grado (FP DAM) desarrollado en equipo: GoFight, una aplicación móvil para la gestión y el seguimiento de entrenamientos de boxeo. Permite registrar rutinas y ejercicios, registrar las sesiones realizadas y consultar el progreso, con un sistema de gamificación basado en rachas y puntos para fomentar la constancia. Desarrollado con Node.js, PostgreSQL y Prisma ORM sobre una arquitectura cliente-servidor.', 'Final Degree Project (Vocational Training, DAM) built as a team: GoFight, a mobile app for managing and tracking boxing training. It lets users browse training routines and exercises, log completed sessions and track progress, with a gamification system based on streaks and points to encourage consistency. Built with Node.js, PostgreSQL and Prisma ORM on a client-server architecture.')" data-es="Ver TFG" data-en="View final project">Ver TFG</button>
             </div>
           </div>
           <div class="formacion-item">
@@ -1753,8 +1464,9 @@
 
 <script>
   // logos oficiales — Simple Icons (marcas) vía jsDelivr y Devicon (lenguajes/frameworks) vía jsDelivr
-  // OJO Agustín: no tengo acceso a internet en este sandbox para comprobar en vivo que cada URL carga.
-  // Revisa sobre todo SQL Server, SAP, Odoo y C# al abrir el archivo — si algún icono no aparece, dímelo y cambio la fuente.
+  // Verificado 2026-09-22: todas las URLs comprobadas contra los repos reales de Simple Icons/Devicon.
+  // Único roto encontrado: AWS usaba el slug de Devicon "amazonwebservices-original.svg" (Devicon solo tiene
+  // variantes wordmark para AWS) — corregido a SIMPLE_ICON('amazonwebservices'), que sí existe como icono suelto.
   const SIMPLE_ICON = slug => `https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/${slug}.svg`;
   const DEVICON = slug => `https://cdn.jsdelivr.net/gh/devicons/devicon/icons/${slug}`;
 
@@ -1839,69 +1551,141 @@
     `<div class="ods-tile" style="background:${g.color}" title="${g.n}. ${g.name}"><svg viewBox="0 0 24 24">${g.icon}</svg></div>`
   ).join('');
 
-  // cinta de tecnologías: logo oficial + nombre + color corporativo, con auto-scroll y arrastre con el ratón
+  // ===== Fuente única de verdad para TODA la sección Stack =====
+  // Agrupa las 51 tecnologías por categoría; alimenta tanto el terminal de habilidades
+  // (barras + nivel) del Stack como la cinta de logos del Hero. Para añadir/quitar una
+  // tecnología, tócala solo aquí — el contador "N tecnologías" y ambas listas se recalculan solas.
+  const LEVEL_META = {
+    avanzado:   { percent: 92, es: 'Avanzado',   en: 'Advanced' },
+    intermedio: { percent: 58, es: 'Intermedio', en: 'Intermediate' },
+    basico:     { percent: 28, es: 'Básico',     en: 'Basic' },
+  };
+  const TECH_CATEGORIES = [
+    { labelEs: 'Lenguajes y frameworks', labelEn: 'Languages & frameworks',
+      headerIcon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="8 6 2 12 8 18"/><polyline points="16 6 22 12 16 18"/></svg>',
+      items: [
+        { icon: DEVICON('javascript/javascript-original.svg'), name: 'JavaScript', color: '#F7DF1E', level: 'avanzado' },
+        { icon: DEVICON('typescript/typescript-original.svg'), name: 'TypeScript', color: '#3178C6', level: 'intermedio' },
+        { icon: DEVICON('html5/html5-original.svg'), name: 'HTML5', color: '#E34F26', level: 'avanzado' },
+        { icon: DEVICON('java/java-original.svg'), name: 'Java', color: '#ED8B00', level: 'basico' },
+        { icon: DEVICON('python/python-original.svg'), name: 'Python', color: '#3776AB', level: 'basico' },
+        { icon: DEVICON('kotlin/kotlin-original.svg'), name: 'Kotlin', color: '#7F52FF', level: 'intermedio' },
+        { icon: DEVICON('dotnetcore/dotnetcore-original.svg'), name: 'C# / .NET', color: '#512BD4', level: 'avanzado' },
+        { icon: DEVICON('react/react-original.svg'), name: 'React', color: '#61DAFB', level: 'avanzado' },
+        { icon: DEVICON('react/react-original.svg'), name: 'React Native', color: '#61DAFB', level: 'avanzado' },
+        { icon: '🧭', name: 'React Navigation', color: '#61DAFB', emoji: true, level: 'avanzado' },
+        { icon: '🐻', name: 'Zustand', color: '#8a8a8a', emoji: true, level: 'intermedio' },
+        { icon: DEVICON('nextjs/nextjs-original.svg'), name: 'Next.js', color: '#8a8a8a', level: 'basico' },
+        { icon: DEVICON('nodejs/nodejs-original.svg'), name: 'Node.js', color: '#339933', level: 'intermedio' },
+        { icon: DEVICON('express/express-original.svg'), name: 'Express', color: '#8a8a8a', level: 'intermedio' },
+        { icon: SIMPLE_ICON('fastapi'), name: 'FastAPI', color: '#009688', level: 'basico' },
+        { icon: SIMPLE_ICON('springboot'), name: 'Spring Boot', color: '#6DB33F', level: 'basico' },
+      ] },
+    { labelEs: 'IA', labelEn: 'AI',
+      headerIcon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="7" width="10" height="10" rx="2"/><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/></svg>',
+      items: [
+        { icon: '🤖', name: 'ChatGPT / Claude', color: '#8a8a8a', emoji: true, level: 'intermedio' },
+        { icon: SIMPLE_ICON('githubcopilot'), name: 'GitHub Copilot', color: '#6e7681', level: 'intermedio' },
+      ] },
+    { labelEs: 'Testing', labelEn: 'Testing',
+      headerIcon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>',
+      items: [
+        { icon: SIMPLE_ICON('vitest'), name: 'Vitest', color: '#729B1B', level: 'intermedio' },
+        { icon: SIMPLE_ICON('jest'), name: 'Jest', color: '#C21325', level: 'intermedio' },
+        { icon: SIMPLE_ICON('pytest'), name: 'pytest', color: '#0A9EDC', level: 'intermedio' },
+      ] },
+    { labelEs: 'Bases de datos', labelEn: 'Databases',
+      headerIcon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v12c0 1.66 3.58 3 8 3s8-1.34 8-3V6"/><path d="M4 12c0 1.66 3.58 3 8 3s8-1.34 8-3"/></svg>',
+      items: [
+        { icon: DEVICON('postgresql/postgresql-original.svg'), name: 'PostgreSQL', color: '#336791', level: 'intermedio' },
+        { icon: DEVICON('microsoftsqlserver/microsoftsqlserver-plain.svg'), name: 'SQL Server', color: '#CC2927', level: 'intermedio' },
+        { icon: DEVICON('mysql/mysql-original.svg'), name: 'MySQL', color: '#4479A1', level: 'intermedio' },
+        { icon: DEVICON('mongodb/mongodb-original.svg'), name: 'MongoDB', color: '#47A248', level: 'intermedio' },
+        { icon: SIMPLE_ICON('supabase'), name: 'Supabase', color: '#3ECF8E', level: 'intermedio' },
+        { icon: DEVICON('sqlite/sqlite-original.svg'), name: 'SQLite', color: '#003B57', level: 'intermedio' },
+        { icon: SIMPLE_ICON('oracle'), name: 'Oracle SQL', color: '#F80000', level: 'intermedio' },
+      ] },
+    { labelEs: 'Estilos', labelEn: 'Styles',
+      headerIcon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a10 10 0 1 0 0 20c1.5 0 2-1 2-2 0-.6-.2-1-.5-1.4-.4-.5-.2-1.2.4-1.4.6-.2 1.1-.2 1.6-.2A5 5 0 0 0 20 12 10 10 0 0 0 12 2Z"/><circle cx="7.5" cy="10.5" r="1.1" fill="currentColor" stroke="none"/><circle cx="12" cy="7" r="1.1" fill="currentColor" stroke="none"/><circle cx="16" cy="10" r="1.1" fill="currentColor" stroke="none"/></svg>',
+      items: [
+        { icon: DEVICON('css3/css3-original.svg'), name: 'CSS3', color: '#1572B6', level: 'avanzado' },
+        { icon: DEVICON('tailwindcss/tailwindcss-original.svg'), name: 'Tailwind CSS', color: '#06B6D4', level: 'intermedio' },
+        { icon: DEVICON('bootstrap/bootstrap-original.svg'), name: 'Bootstrap', color: '#7952B3', level: 'intermedio' },
+      ] },
+    { labelEs: 'Entornos y herramientas', labelEn: 'Environments & tools',
+      headerIcon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 3.5a4 4 0 0 0-4.9 5.2L3 15.3V19h3.7l6.6-6.6a4 4 0 0 0 5.2-4.9l-3 3-2-2Z"/></svg>',
+      items: [
+        { icon: DEVICON('git/git-original.svg'), name: 'Git', color: '#F05032', level: 'avanzado' },
+        { icon: SIMPLE_ICON('github'), name: 'GitHub', color: '#6e7681', level: 'avanzado' },
+        { icon: DEVICON('docker/docker-original.svg'), name: 'Docker', color: '#2496ED', level: 'intermedio' },
+        { icon: SIMPLE_ICON('vercel'), name: 'Vercel', color: '#8a8a8a', level: 'intermedio' },
+        { icon: SIMPLE_ICON('powerbi'), name: 'Power BI', color: '#F2C811', level: 'intermedio' },
+        { icon: SIMPLE_ICON('amazonwebservices'), name: 'AWS', color: '#FF9900', level: 'basico' },
+        { icon: DEVICON('apachekafka/apachekafka-original.svg'), name: 'Kafka', color: '#7a7a7a', level: 'basico' },
+        { icon: DEVICON('flutter/flutter-original.svg'), name: 'Flutter', color: '#02569B', level: 'basico' },
+        { icon: DEVICON('dart/dart-original.svg'), name: 'Dart', color: '#0175C2', level: 'basico' },
+        { icon: DEVICON('vscode/vscode-original.svg'), name: 'VS Code', color: '#007ACC', level: 'avanzado' },
+        { icon: SIMPLE_ICON('npm'), name: 'npm', color: '#CB3837', level: 'avanzado' },
+        { icon: DEVICON('intellij/intellij-original.svg'), name: 'IntelliJ IDEA', color: '#FE315D', level: 'intermedio' },
+        { icon: DEVICON('vitejs/vitejs-original.svg'), name: 'Vite', color: '#646CFF', level: 'intermedio' },
+        { icon: DEVICON('postman/postman-original.svg'), name: 'Postman', color: '#FF6C37', level: 'intermedio' },
+        { icon: DEVICON('androidstudio/androidstudio-original.svg'), name: 'Android Studio', color: '#3DDC84', level: 'basico' },
+        { icon: SIMPLE_ICON('insomnia'), name: 'Insomnia', color: '#4000BF', level: 'basico' },
+        { icon: SIMPLE_ICON('stripe'), name: 'Stripe', color: '#635BFF', level: 'intermedio' },
+      ] },
+    { labelEs: 'ERP', labelEn: 'ERP',
+      headerIcon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="3" y1="13" x2="21" y2="13"/></svg>',
+      items: [
+        { icon: SIMPLE_ICON('sap'), name: 'SAP HCM', color: '#0FAAFF', level: 'avanzado' },
+        { icon: SIMPLE_ICON('sap'), name: 'SAP SuccessFactors', color: '#0FAAFF', level: 'avanzado' },
+        { icon: SIMPLE_ICON('odoo'), name: 'Odoo', color: '#714B67', level: 'avanzado' },
+      ] },
+  ];
+  const ALL_TECHS = TECH_CATEGORIES.flatMap(c => c.items);
+
+  // ---- Terminal de habilidades (sección Stack): genera categorías + barras desde TECH_CATEGORIES ----
   (function () {
-    // misma lista que Stack (skills-terminal), en el mismo orden por categoría — única fuente de verdad, 51 tecnologías
-    const TECHS = [
-      // Lenguajes y frameworks
-      { icon: DEVICON('javascript/javascript-original.svg'), name: 'JavaScript', color: '#F7DF1E' },
-      { icon: DEVICON('typescript/typescript-original.svg'), name: 'TypeScript', color: '#3178C6' },
-      { icon: DEVICON('html5/html5-original.svg'), name: 'HTML5', color: '#E34F26' },
-      { icon: DEVICON('java/java-original.svg'), name: 'Java', color: '#ED8B00' },
-      { icon: DEVICON('python/python-original.svg'), name: 'Python', color: '#3776AB' },
-      { icon: DEVICON('kotlin/kotlin-original.svg'), name: 'Kotlin', color: '#7F52FF' },
-      { icon: DEVICON('dotnetcore/dotnetcore-original.svg'), name: 'C# / .NET', color: '#512BD4' },
-      { icon: DEVICON('react/react-original.svg'), name: 'React', color: '#61DAFB' },
-      { icon: DEVICON('react/react-original.svg'), name: 'React Native', color: '#61DAFB' },
-      { icon: '🧭', name: 'React Navigation', color: '#61DAFB', emoji: true },
-      { icon: '🐻', name: 'Zustand', color: '#8a8a8a', emoji: true },
-      { icon: DEVICON('nextjs/nextjs-original.svg'), name: 'Next.js', color: '#8a8a8a' },
-      { icon: DEVICON('nodejs/nodejs-original.svg'), name: 'Node.js', color: '#339933' },
-      { icon: DEVICON('express/express-original.svg'), name: 'Express', color: '#8a8a8a' },
-      { icon: SIMPLE_ICON('fastapi'), name: 'FastAPI', color: '#009688' },
-      { icon: SIMPLE_ICON('springboot'), name: 'Spring Boot', color: '#6DB33F' },
-      // IA
-      { icon: '🤖', name: 'ChatGPT / Claude', color: '#8a8a8a', emoji: true },
-      { icon: SIMPLE_ICON('githubcopilot'), name: 'GitHub Copilot', color: '#6e7681' },
-      // Testing
-      { icon: SIMPLE_ICON('vitest'), name: 'Vitest', color: '#729B1B' },
-      { icon: SIMPLE_ICON('jest'), name: 'Jest', color: '#C21325' },
-      { icon: SIMPLE_ICON('pytest'), name: 'pytest', color: '#0A9EDC' },
-      // Bases de datos
-      { icon: DEVICON('postgresql/postgresql-original.svg'), name: 'PostgreSQL', color: '#336791' },
-      { icon: DEVICON('microsoftsqlserver/microsoftsqlserver-plain.svg'), name: 'SQL Server', color: '#CC2927' },
-      { icon: DEVICON('mysql/mysql-original.svg'), name: 'MySQL', color: '#4479A1' },
-      { icon: DEVICON('mongodb/mongodb-original.svg'), name: 'MongoDB', color: '#47A248' },
-      { icon: SIMPLE_ICON('supabase'), name: 'Supabase', color: '#3ECF8E' },
-      { icon: DEVICON('sqlite/sqlite-original.svg'), name: 'SQLite', color: '#003B57' },
-      { icon: SIMPLE_ICON('oracle'), name: 'Oracle SQL', color: '#F80000' },
-      // Estilos
-      { icon: DEVICON('css3/css3-original.svg'), name: 'CSS3', color: '#1572B6' },
-      { icon: DEVICON('tailwindcss/tailwindcss-original.svg'), name: 'Tailwind CSS', color: '#06B6D4' },
-      { icon: DEVICON('bootstrap/bootstrap-original.svg'), name: 'Bootstrap', color: '#7952B3' },
-      // Entornos y herramientas
-      { icon: DEVICON('git/git-original.svg'), name: 'Git', color: '#F05032' },
-      { icon: SIMPLE_ICON('github'), name: 'GitHub', color: '#6e7681' },
-      { icon: DEVICON('docker/docker-original.svg'), name: 'Docker', color: '#2496ED' },
-      { icon: SIMPLE_ICON('vercel'), name: 'Vercel', color: '#8a8a8a' },
-      { icon: SIMPLE_ICON('powerbi'), name: 'Power BI', color: '#F2C811' },
-      { icon: DEVICON('amazonwebservices/amazonwebservices-original.svg'), name: 'AWS', color: '#FF9900' },
-      { icon: DEVICON('apachekafka/apachekafka-original.svg'), name: 'Kafka', color: '#7a7a7a' },
-      { icon: DEVICON('flutter/flutter-original.svg'), name: 'Flutter', color: '#02569B' },
-      { icon: DEVICON('dart/dart-original.svg'), name: 'Dart', color: '#0175C2' },
-      { icon: DEVICON('vscode/vscode-original.svg'), name: 'VS Code', color: '#007ACC' },
-      { icon: SIMPLE_ICON('npm'), name: 'npm', color: '#CB3837' },
-      { icon: DEVICON('intellij/intellij-original.svg'), name: 'IntelliJ IDEA', color: '#FE315D' },
-      { icon: DEVICON('vitejs/vitejs-original.svg'), name: 'Vite', color: '#646CFF' },
-      { icon: DEVICON('postman/postman-original.svg'), name: 'Postman', color: '#FF6C37' },
-      { icon: DEVICON('androidstudio/androidstudio-original.svg'), name: 'Android Studio', color: '#3DDC84' },
-      { icon: SIMPLE_ICON('insomnia'), name: 'Insomnia', color: '#4000BF' },
-      { icon: SIMPLE_ICON('stripe'), name: 'Stripe', color: '#635BFF' },
-      // ERP
-      { icon: SIMPLE_ICON('sap'), name: 'SAP HCM', color: '#0FAAFF' },
-      { icon: SIMPLE_ICON('sap'), name: 'SAP SuccessFactors', color: '#0FAAFF' },
-      { icon: SIMPLE_ICON('odoo'), name: 'Odoo', color: '#714B67' },
-    ];
+    const body = document.getElementById('skillsTerminalBody');
+    if (!body) return;
+    const curLang = () => (document.documentElement.lang === 'en' ? 'en' : 'es');
+    const rowHtml = t => {
+      const lvl = LEVEL_META[t.level];
+      const iconInner = t.emoji ? t.icon : `<img src="${t.icon}" alt="${t.name}" loading="lazy">`;
+      return `<div class="skill-row">
+        <span class="skill-row-icon">${iconInner}</span>
+        <span class="skill-row-name">${t.name}</span>
+        <span class="skill-row-bar"><span class="skill-row-bar-fill" style="width:${lvl.percent}%"></span></span>
+        <span class="skill-row-level skill-level-${t.level}" data-es="${lvl.es}" data-en="${lvl.en}">${curLang() === 'es' ? lvl.es : lvl.en}</span>
+      </div>`;
+    };
+    const categoriesHtml = TECH_CATEGORIES.map(cat => `
+      <div class="skills-category">
+        <div class="stack-card-header">
+          ${cat.headerIcon}
+          <span class="stack-card-label" data-es="${cat.labelEs}" data-en="${cat.labelEn}">${curLang() === 'es' ? cat.labelEs : cat.labelEn}</span>
+        </div>
+        <div class="skills-grid">${cat.items.map(rowHtml).join('')}</div>
+      </div>`).join('');
+    const total = ALL_TECHS.length;
+    const footerEs = `${total} tecnologías cargadas`;
+    const footerEn = `${total} technologies loaded`;
+    body.innerHTML = categoriesHtml + `<p class="skills-terminal-footer"><span class="skills-check">✓</span><span data-es="${footerEs}" data-en="${footerEn}">${curLang() === 'es' ? footerEs : footerEn}</span></p>`;
+
+    // estadística "N tecnologías" de Mi Perfil — misma fuente de verdad, nunca se desincroniza
+    const statEl = document.getElementById('techCountStat');
+    if (statEl) {
+      const statEs = `${total} tecnologías`;
+      const statEn = `${total} technologies`;
+      statEl.setAttribute('data-countup', String(total));
+      statEl.setAttribute('data-es', statEs);
+      statEl.setAttribute('data-en', statEn);
+      statEl.textContent = curLang() === 'es' ? statEs : statEn;
+    }
+  })();
+
+  // cinta de tecnologías del Hero: logo oficial + nombre + color corporativo, con auto-scroll y arrastre con el ratón
+  (function () {
+    const TECHS = ALL_TECHS;
     const track = document.getElementById('marqueeTrack');
     const wrap = document.getElementById('marqueeWrap');
     const badge = t => `<span class="tech-badge" style="--tc:${t.color}"><span class="icon">${t.emoji ? t.icon : `<img src="${t.icon}" alt="${t.name}" loading="lazy">`}</span>${t.name}</span>`;
@@ -1948,6 +1732,39 @@
     wrap.addEventListener('touchstart', pointerDown, { passive: true });
     window.addEventListener('touchmove', pointerMove, { passive: true });
     window.addEventListener('touchend', pointerUp);
+  })();
+
+  // efecto "foto 3D" en la foto de perfil: la imagen está partida en dos capas reales (recorte
+  // de Agustín en primer plano + el fondo original desenfocado detrás) que se desplazan a
+  // distinta velocidad según el ratón, más una ligera inclinación del conjunto — recreando la
+  // sensación de profundidad real que Agustín vio en la web de un compañero (no un simple giro
+  // de una imagen plana). Vuelve a su posición neutra al alejar el cursor.
+  (function () {
+    const photoWrap = document.querySelector('.hero-photo-wrap');
+    const photo = document.querySelector('.hero-photo');
+    const bgImg = document.querySelector('.hero-photo-bg');
+    const fgImg = document.querySelector('.hero-photo-fg');
+    if (!photoWrap || !photo) return;
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const MAX_TILT = 10;
+    const BG_SHIFT = 5;
+    const FG_SHIFT = 15;
+    function handleMove(clientX, clientY) {
+      const rect = photo.getBoundingClientRect();
+      const cx = rect.left + rect.width / 2, cy = rect.top + rect.height / 2;
+      const dx = Math.max(-1, Math.min(1, (clientX - cx) / (rect.width / 2)));
+      const dy = Math.max(-1, Math.min(1, (clientY - cy) / (rect.height / 2)));
+      photo.style.transform = `perspective(900px) rotateY(${dx * MAX_TILT}deg) rotateX(${-dy * MAX_TILT}deg)`;
+      if (bgImg) bgImg.style.transform = `translate(calc(-50% + ${dx * BG_SHIFT}px), calc(-50% + ${dy * BG_SHIFT}px))`;
+      if (fgImg) fgImg.style.transform = `translate(calc(-50% + ${dx * FG_SHIFT}px), calc(-50% + ${dy * FG_SHIFT}px)) scale(1.035)`;
+    }
+    function reset() {
+      photo.style.transform = '';
+      if (bgImg) bgImg.style.transform = '';
+      if (fgImg) fgImg.style.transform = '';
+    }
+    photoWrap.addEventListener('mousemove', (e) => handleMove(e.clientX, e.clientY));
+    photoWrap.addEventListener('mouseleave', reset);
   })();
 
   // fondo animado de cada temática: 💻 conserva la constelación de puntos original;
@@ -2031,10 +1848,33 @@
     }
     const rnd = (min, max) => min + Math.random() * (max - min);
 
+    // profundidad por capas: cada partícula nace en una de 3 capas (lejos/media/cerca) que
+    // escalan tamaño, velocidad y opacidad — así el fondo tiene sensación de parallax real
+    // sin depender del cursor (a petición de Agustín, tras quitar el efecto de líneas al ratón).
+    const DEPTH_LAYERS = [
+      { sizeMul: 0.55, speedMul: 0.55, alphaMul: 0.55 }, // lejos: pequeño, lento, tenue
+      { sizeMul: 1.0,  speedMul: 1.0,  alphaMul: 0.9  }, // media
+      { sizeMul: 1.7,  speedMul: 1.6,  alphaMul: 1.25 }, // cerca: grande, rápido, más visible
+    ];
+    function applyDepth(p, layer) {
+      const d = DEPTH_LAYERS[layer];
+      p.layer = layer;
+      p.alphaMul = d.alphaMul;
+      if (typeof p.size === 'number') p.size *= d.sizeMul;
+      if (typeof p.vx === 'number') p.vx *= d.speedMul;
+      if (typeof p.vy === 'number') p.vy *= d.speedMul;
+      if (typeof p.speed === 'number') p.speed *= d.speedMul;
+      if (typeof p.rotSpeed === 'number') p.rotSpeed *= d.speedMul;
+      if (typeof p.maxFrac === 'number') p.maxFrac = Math.min(1, p.maxFrac * d.sizeMul);
+      if (typeof p.bw === 'number') p.bw *= d.sizeMul;
+      if (typeof p.alpha === 'number') p.alpha *= d.alphaMul;
+      return p;
+    }
+
     function spawn(kind, i, count) {
       switch (kind) {
         case 'dots':
-          return { x: rnd(0,w), y: rnd(0,h), vx: rnd(-0.125,0.125), vy: rnd(-0.125,0.125) };
+          return { x: rnd(0,w), y: rnd(0,h), vx: rnd(-0.125,0.125), vy: rnd(-0.125,0.125), size: 1.8 };
         case 'leaves':
           return { x: rnd(0,w), y: rnd(0,h), vy: rnd(0.3,0.7), size: rnd(5,9), rot: rnd(0,Math.PI*2), rotSpeed: rnd(-0.012,0.012), phase: rnd(0,Math.PI*2) };
         case 'lunares': {
@@ -2083,7 +1923,7 @@
     function initParticles() {
       currentKind = KIND_BY_THEME[currentThemeSlug()] || 'dots';
       const count = COUNT_BY_KIND[currentKind];
-      particles = Array.from({ length: count }, (_, i) => spawn(currentKind, i, count));
+      particles = Array.from({ length: count }, (_, i) => applyDepth(spawn(currentKind, i, count), i % 3));
     }
     function init() { resize(); initParticles(); }
 
@@ -2099,7 +1939,7 @@
           p.y += p.vy; p.x += Math.sin(t*0.0011 + p.phase) * 0.35; p.rot += p.rotSpeed;
           if (p.y > h + 20) { p.y = -20; p.x = rnd(0,w); }
           ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.rot);
-          ctx.fillStyle = rgba(A, 0.3);
+          ctx.fillStyle = rgba(A, 0.3 * p.alphaMul);
           ctx.beginPath();
           ctx.ellipse(0, 0, p.size, p.size * 0.42, 0, 0, Math.PI*2);
           ctx.fill(); ctx.restore();
@@ -2111,7 +1951,7 @@
           p.y += p.vy; p.rot += p.rotSpeed;
           if (p.y < -p.size * 3) { p.y = h + p.size * 3; p.x = rnd(0,w); }
           const tw = Math.abs(Math.sin(t * p.freq + p.phase));
-          const alpha = 0.12 + 0.6 * tw;
+          const alpha = (0.12 + 0.6 * tw) * p.alphaMul;
           const R = p.size * (0.55 + 0.55 * tw);
           const r = R * 0.28;
           ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.rot);
@@ -2134,7 +1974,7 @@
             const pulse = 0.85 + 0.15 * Math.sin(t * p.freq + p.phase);
             ctx.beginPath();
             ctx.arc(p.x, p.y, p.size * pulse, 0, Math.PI*2);
-            ctx.fillStyle = rgba(col, 0.16);
+            ctx.fillStyle = rgba(col, 0.16 * p.alphaMul);
             ctx.fill();
           }
           if (p.isLast) drawStadiumReform(ctx, w, h, A, B, t);
@@ -2146,7 +1986,7 @@
           const total = w + h;
           const k = ((p.baseK + t * p.speed) % total + total) % total;
           const col = p.alt ? A : B;
-          ctx.strokeStyle = rgba(col, 0.17);
+          ctx.strokeStyle = rgba(col, 0.17 * p.alphaMul);
           ctx.lineWidth = p.bw;
           ctx.beginPath();
           ctx.moveTo(k - h, h);
@@ -2159,8 +1999,8 @@
           const baseY = h;
           const hgt = (0.1 + 0.9 * Math.abs(Math.sin(t*p.freq + p.phase))) * p.maxFrac * h;
           const grad = ctx.createLinearGradient(0, baseY, 0, baseY - hgt);
-          grad.addColorStop(0, rgba(A, 0.22));
-          grad.addColorStop(1, rgba(B, 0.03));
+          grad.addColorStop(0, rgba(A, 0.22 * p.alphaMul));
+          grad.addColorStop(1, rgba(B, 0.03 * p.alphaMul));
           ctx.fillStyle = grad;
           ctx.fillRect(p.x - p.bw/2, baseY - hgt, p.bw, hgt);
           return;
@@ -2168,7 +2008,7 @@
         case 'embers': {
           p.y += p.vy; p.x += p.vx + Math.sin(t*0.002 + p.phase) * 0.12;
           if (p.y < -10) { p.y = h + 10; p.x = rnd(0,w); }
-          const alpha = 0.3 + 0.4 * Math.abs(Math.sin(t*0.004 + p.phase));
+          const alpha = (0.3 + 0.4 * Math.abs(Math.sin(t*0.004 + p.phase))) * p.alphaMul;
           ctx.fillStyle = rgba(A, alpha);
           ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI*2); ctx.fill();
           return;
@@ -2177,7 +2017,7 @@
           p.x += p.vx; p.y += p.vy;
           if (p.x < 0 || p.x > w) p.vx *= -1;
           if (p.y < 0 || p.y > h) p.vy *= -1;
-          ctx.fillStyle = rgba(p.alt ? B : A, 0.5);
+          ctx.fillStyle = rgba(p.alt ? B : A, 0.5 * p.alphaMul);
           ctx.fillRect(Math.round(p.x), Math.round(p.y), p.size, p.size);
           return;
         }
@@ -2187,9 +2027,9 @@
           if (p.y > h + p.size) { p.y = -p.size; p.x = rnd(0,w); }
           const s = p.size * 0.5;
           ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.rot);
-          ctx.strokeStyle = rgba(A, 0.35); ctx.lineWidth = 1.1;
+          ctx.strokeStyle = rgba(A, 0.35 * p.alphaMul); ctx.lineWidth = 1.1;
           ctx.strokeRect(-s, -s, s*2, s*2);
-          ctx.fillStyle = rgba(B, 0.5);
+          ctx.fillStyle = rgba(B, 0.5 * p.alphaMul);
           const pr = s * 0.2, o = s * 0.5;
           const layouts = {
             1: [[0,0]],
@@ -2234,13 +2074,14 @@
             const dx = particles[i].x - particles[j].x, dy = particles[i].y - particles[j].y;
             const dist = Math.sqrt(dx*dx + dy*dy);
             if (dist < LINK_DIST) {
-              ctx.strokeStyle = rgba(colors.a, 0.22 * (1 - dist / LINK_DIST));
+              const pairAlphaMul = (particles[i].alphaMul + particles[j].alphaMul) / 2;
+              ctx.strokeStyle = rgba(colors.a, 0.22 * (1 - dist / LINK_DIST) * pairAlphaMul);
               ctx.lineWidth = 1;
               ctx.beginPath(); ctx.moveTo(particles[i].x, particles[i].y); ctx.lineTo(particles[j].x, particles[j].y); ctx.stroke();
             }
           }
         }
-        particles.forEach(p => { ctx.fillStyle = rgba(colors.a, 0.75); ctx.beginPath(); ctx.arc(p.x, p.y, 1.8, 0, Math.PI*2); ctx.fill(); });
+        particles.forEach(p => { ctx.fillStyle = rgba(colors.a, 0.75 * p.alphaMul); ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI*2); ctx.fill(); });
       }
       requestAnimationFrame(tick);
     }
@@ -2256,12 +2097,56 @@
     fSubject: { es: 'Propuesta de proyecto…', en: 'Project proposal…' },
     fMsg: { es: 'Cuéntame en qué puedo ayudarte…', en: 'Tell me how I can help…' },
   };
-  function toggleMode() {
-    const html = document.documentElement;
-    html.classList.toggle('light');
-    // el icono muestra SIEMPRE el modo contrario al actual (a qué modo se pasará al pulsar)
-    document.getElementById('modeBtn').textContent = html.classList.contains('light') ? '🌙' : '☀️';
+  // ============ Apariencia: Claro / Oscuro / Sistema (inspirado en el selector de Alexis) ============
+  const MODE_META = {
+    light: { es: 'Claro', en: 'Light' },
+    dark: { es: 'Oscuro', en: 'Dark' },
+    system: { es: 'Sistema', en: 'System' },
+  };
+  const MODE_ICONS = {
+    light: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>',
+    dark: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>',
+    system: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>',
+  };
+  let currentColorMode = 'dark';
+  try {
+    const saved = localStorage.getItem('colorMode');
+    if (saved && MODE_META[saved]) currentColorMode = saved;
+  } catch (e) { /* almacenamiento no disponible (p.ej. modo privado): se mantiene el valor por defecto */ }
+  function resolveIsLight(mode) {
+    if (mode === 'light') return true;
+    if (mode === 'dark') return false;
+    return !!(window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches);
+  }
+  function updateModeUI() {
+    const lang = document.documentElement.lang === 'en' ? 'en' : 'es';
+    const iconEl = document.getElementById('modeTriggerIcon');
+    const labelEl = document.getElementById('modeTriggerLabel');
+    if (iconEl) iconEl.innerHTML = MODE_ICONS[currentColorMode];
+    if (labelEl) labelEl.textContent = MODE_META[currentColorMode][lang];
+    document.querySelectorAll('.mode-option').forEach(opt => opt.classList.toggle('active', opt.dataset.mode === currentColorMode));
+  }
+  function applyColorMode(mode) {
+    currentColorMode = mode;
+    document.documentElement.classList.toggle('light', resolveIsLight(mode));
+    updateModeUI();
     updateFavicon();
+  }
+  function setColorMode(mode) {
+    try { localStorage.setItem('colorMode', mode); } catch (e) { /* ignorar si no hay almacenamiento disponible */ }
+    applyColorMode(mode);
+    document.getElementById('modeMenu').classList.remove('open');
+    document.getElementById('modeTrigger').setAttribute('aria-expanded', 'false');
+  }
+  function toggleModeMenu() {
+    const menu = document.getElementById('modeMenu');
+    const isOpen = menu.classList.toggle('open');
+    document.getElementById('modeTrigger').setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+  }
+  if (window.matchMedia) {
+    window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', () => {
+      if (currentColorMode === 'system') applyColorMode('system');
+    });
   }
   function updateFavicon() {
     // el favicon se regenera con los colores --bg/--accent en vivo, así que sigue
@@ -2359,6 +2244,11 @@
   document.addEventListener('click', (e) => {
     const picker = document.querySelector('.theme-picker');
     if (picker && !picker.contains(e.target)) document.getElementById('themeMenu').classList.remove('open');
+    const modePicker = document.querySelector('.mode-picker');
+    if (modePicker && !modePicker.contains(e.target)) {
+      document.getElementById('modeMenu').classList.remove('open');
+      document.getElementById('modeTrigger').setAttribute('aria-expanded', 'false');
+    }
     document.querySelectorAll('.cv-picker').forEach(cvPicker => {
       if (!cvPicker.contains(e.target)) {
         const menu = cvPicker.querySelector('.cv-menu');
@@ -2384,6 +2274,7 @@
       if (el) el.placeholder = texts[next];
     });
     document.getElementById('langBtn').textContent = next === 'es' ? 'EN' : 'ES';
+    updateModeUI();
   }
 
   // ============ REPRODUCTOR DE RADIO (Spotify embebido + podcasts por temática) ============
@@ -2496,6 +2387,7 @@
       { title: 'Podcast Retro Entre AMIGOS', url: 'https://open.spotify.com/show/3m0CXi4gHNtVhKJrkhcLKv' },
       { title: 'El Mundo del Spectrum Podcast', url: 'https://open.spotify.com/show/50kpHUKnwusHrGlQW6RwFJ' },
       { title: 'Conexión MSX', url: 'https://www.ivoox.com/en/podcast-conexion-msx_sq_f1502368_1.html' },
+      { title: 'Retro Handhelds Podcast (EN)', url: 'https://open.spotify.com/show/2tmx0PFdkyRqkjRkB7GtgD' },
     ],
     '🎱': [
       { title: 'Más Madera (eurogames)', url: 'https://open.spotify.com/show/3mql3NXdjMzyb89fYNzJDC' },
@@ -2626,6 +2518,10 @@
   window.updateRadioPlayer = updateRadioPlayer;
   loadSpotifyIframeApi();
   updateRadioPlayer(document.getElementById('themeTrigger').textContent.trim());
+  // El reproductor arranca minimizado: al entrar al portfolio solo se ve el botón
+  // flotante de auriculares (.radio-reopen); la barra completa se abre al pulsarlo.
+  document.getElementById('radioPlayer').classList.add('minimized');
+  document.getElementById('radioReopen').classList.add('show');
   (function () {
     const player = document.getElementById('radioPlayer');
     if (player && 'ResizeObserver' in window) {
@@ -2652,10 +2548,19 @@
     const ICON_LINK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>';
     const ICON_FIGMA = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="9" r="3"/><circle cx="15" cy="15" r="3"/><rect x="6" y="12" width="6" height="6" rx="2"/></svg>';
     const ICON_CHECK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="8 12.5 10.5 15 16 9"/></svg>';
+    // par de iconos para el selector captura/vídeo de las tarjetas de proyecto — solo se
+    // renderiza cuando un proyecto tiene AMBOS assets reales (p.screenshot Y p.video); si no,
+    // no se inventa nada y la tarjeta se ve como siempre.
+    const ICON_MEDIA_IMG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>';
+    const ICON_MEDIA_PLAY = '<svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="6 4 20 12 6 20"/></svg>';
 
+    // screenshot/video (null por defecto): pon aquí una URL de captura real y/o de un clip de
+    // demo cuando lo tengas, y la tarjeta mostrará automáticamente los botones para alternar
+    // entre foto y vídeo (ver .proj-media-switch / setProjMediaMode). Con ambos en null se
+    // muestra el icono representativo de siempre, como hasta ahora.
     const PROJECTS = [
       {
-        name: 'MZ-Asistencial', cats: ['web', 'programacion'], media: ICON_MIGRACION,
+        name: 'MZ-Asistencial', cats: ['web', 'programacion'], media: ICON_MIGRACION, screenshot: null, video: null,
         badge: { es: 'Prácticas profesionales', en: 'Professional internship' },
         date: { es: 'Marzo – Junio 2026', en: 'March – June 2026' },
         descShort: { es: 'Migración de sistema legacy VB a .NET/React. Caso de estudio profesional.', en: 'Migration of a legacy VB system to .NET/React. Professional case study.' },
@@ -2691,7 +2596,7 @@
         links: { code: null, web: null, figma: null },
       },
       {
-        name: 'GoFight', cats: ['movil', 'programacion'], media: ICON_LLAMA,
+        name: 'GoFight', cats: ['movil', 'programacion'], media: ICON_LLAMA, screenshot: null, video: null,
         badge: { es: 'Proyecto en equipo', en: 'Team project' },
         descShort: { es: 'App de gestión de clases de boxeo — proyecto final DAM en equipo.', en: 'Boxing class management app — DAM team final project.' },
         stackShort: ['React Native', 'Node.js'],
@@ -2729,7 +2634,7 @@
         links: { code: 'https://github.com/agustinlinares/GoFight', web: null, figma: null },
       },
       {
-        name: 'ChatbotWebHotelCostaAzul', cats: ['web'], media: ICON_CHAT,
+        name: 'ChatbotWebHotelCostaAzul', cats: ['web'], media: ICON_CHAT, screenshot: null, video: null,
         badge: { es: 'Proyecto de automatización', en: 'Automation project' },
         descShort: { es: 'Chatbot con Landbot para un hotel de Málaga.', en: 'Landbot-based chatbot for a hotel in Málaga.' },
         stackShort: ['Landbot', 'HTML'],
@@ -2762,7 +2667,7 @@
         links: { code: 'https://github.com/agustinlinares/ChatbotWebHotelCostaAzul', web: 'https://chatbot-web-hotel-costa-azul.vercel.app', figma: null },
       },
       {
-        name: 'Copisteria_Biblioteca', cats: ['programacion'], media: ICON_LIBRO,
+        name: 'Copisteria_Biblioteca', cats: ['programacion'], media: ICON_LIBRO, screenshot: null, video: null,
         badge: { es: 'Ejercicio académico', en: 'Academic exercise' },
         descShort: { es: 'Ejercicio de programación concurrente.', en: 'Concurrent-programming exercise.' },
         stackShort: ['Java'],
@@ -2795,7 +2700,7 @@
         links: { code: 'https://github.com/agustinlinares/Copisteria_Biblioteca', web: null, figma: null },
       },
       {
-        name: 'Odoo_Gestion_Manual', cats: ['bases-de-datos', 'programacion'], media: ICON_ODOO_BADGE,
+        name: 'Odoo_Gestion_Manual', cats: ['bases-de-datos', 'programacion'], media: ICON_ODOO_BADGE, screenshot: null, video: null,
         badge: { es: 'Documentación técnica', en: 'Technical documentation' },
         descShort: { es: 'Documentación técnica de gestión en Odoo.', en: 'Technical documentation for Odoo management.' },
         stackShort: ['Odoo'],
@@ -2840,9 +2745,16 @@
 
     gridEl.innerHTML = PROJECTS.map((p, i) => `
       <div class="proj-card" data-cats="${p.cats.join(',')}" data-idx="${i}" tabindex="0" role="button">
-        <div class="proj-img">
-          ${p.media}
+        <div class="proj-img" ${(p.screenshot && p.video) ? 'data-media-mode="image"' : ''}>
+          ${p.screenshot ? `<img class="proj-media-img" src="${p.screenshot}" alt="${p.name}" loading="lazy">` : p.media}
+          ${p.video ? `<video class="proj-media-video" src="${p.video}" muted loop playsinline></video>` : ''}
+          <span class="proj-index">${String(i + 1).padStart(2, '0')}</span>
           <span class="proj-badge" data-es="${p.badge.es}" data-en="${p.badge.en}">${curLang() === 'en' ? p.badge.en : p.badge.es}</span>
+          ${(p.screenshot && p.video) ? `
+          <div class="proj-media-switch" onclick="event.stopPropagation()">
+            <button type="button" class="proj-media-btn active" data-mode="image" aria-label="Ver captura" onclick="setProjMediaMode(event, ${i}, 'image')">${ICON_MEDIA_IMG}</button>
+            <button type="button" class="proj-media-btn" data-mode="video" aria-label="Ver vídeo" onclick="setProjMediaMode(event, ${i}, 'video')">${ICON_MEDIA_PLAY}</button>
+          </div>` : ''}
         </div>
         <div class="proj-body">
           <div class="proj-toprow">
@@ -2873,7 +2785,9 @@
     function openProjModal(idx) {
       const p = PROJECTS[idx];
       const lang = curLang();
-      document.getElementById('projModalMedia').innerHTML = p.media;
+      document.getElementById('projModalMedia').innerHTML = p.screenshot
+        ? `<img src="${p.screenshot}" alt="${p.name}" style="width:100%;height:100%;min-height:280px;object-fit:cover;">`
+        : p.media;
       document.getElementById('projModalTitle').textContent = p.name;
       document.getElementById('projModalTags').innerHTML = p.stackFull.map(s => `<span>${s}</span>`).join('');
       const descEl = document.getElementById('projModalDesc');
@@ -2916,6 +2830,21 @@
     window.closeProjModal = function () {
       document.getElementById('projModalOverlay').classList.remove('open');
       document.body.style.overflow = '';
+    };
+    // selector captura/vídeo de la tarjeta de proyecto — solo existe cuando esa tarjeta
+    // tiene botones (es decir, cuando el proyecto tiene p.screenshot Y p.video reales)
+    window.setProjMediaMode = function (evt, idx, mode) {
+      if (evt) evt.stopPropagation();
+      const card = gridEl.querySelector(`.proj-card[data-idx="${idx}"]`);
+      if (!card) return;
+      const imgWrap = card.querySelector('.proj-img');
+      imgWrap.setAttribute('data-media-mode', mode);
+      card.querySelectorAll('.proj-media-btn').forEach(b => b.classList.toggle('active', b.dataset.mode === mode));
+      const video = imgWrap.querySelector('.proj-media-video');
+      if (video) {
+        if (mode === 'video') { video.currentTime = 0; video.play().catch(() => {}); }
+        else { video.pause(); }
+      }
     };
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') window.closeProjModal();
@@ -3162,7 +3091,7 @@
       countObserver.observe(countEl);
     }
   })();
-  updateFavicon();
+  applyColorMode(currentColorMode);
 </script>
 </body>
 </html>
