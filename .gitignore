@@ -1,0 +1,12 @@
+# Carpeta donde el entregable de Claude/Cowork se guarda automáticamente
+# (capturas de verificación, entregas intermedias, versiones antiguas) —
+# no forma parte del sitio desplegado.
+Claude outputs/
+
+# Captura de verificación suelta que quedó en la raíz por error, no es un
+# asset del sitio.
+depth_rest.png
+
+# Archivos de sistema habituales
+.DS_Store
+Thumbs.db
