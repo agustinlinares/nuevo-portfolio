@@ -158,14 +158,16 @@
   .cv-menu-right { left:auto; right:0; transform:none; }
   .cv-menu a { display:flex; align-items:center; gap:8px; padding:9px 12px; border-radius:9px; font-size:13px; font-weight:500; color:var(--text); text-decoration:none; }
   .cv-menu a:hover { background: color-mix(in srgb, var(--accent) 14%, transparent); color:var(--accent); }
+  .cv-size { font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:400; color:var(--text-2); }
   .controls { display:flex; align-items:center; justify-self:end; gap:10px; }
   .theme-picker { position:relative; }
-  .theme-trigger { width:32px; height:32px; display:flex; align-items:center; justify-content:center; border-radius:999px; background:var(--surface); border:1px solid var(--border); font-size:15px; cursor:pointer; }
+  .theme-trigger { width:32px; height:32px; display:flex; align-items:center; justify-content:center; border-radius:999px; background:var(--surface); border:1px solid var(--border); font-size:15px; cursor:pointer; padding:0; }
   .theme-menu { position:absolute; top:calc(100% + 8px); right:0; display:none; grid-template-columns:repeat(5,1fr); gap:4px; background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:8px; box-shadow:var(--shadow); z-index:20; }
   .theme-menu.open { display:grid; }
-  .theme-menu span { width:30px; height:30px; display:flex; align-items:center; justify-content:center; border-radius:999px; font-size:14px; cursor:pointer; }
-  .theme-menu span:hover { background: color-mix(in srgb, var(--accent) 16%, transparent); }
-  .theme-menu span.active { background: color-mix(in srgb, var(--accent) 26%, transparent); }
+  .theme-menu button { width:30px; height:30px; display:flex; align-items:center; justify-content:center; border-radius:999px; font-size:14px; cursor:pointer; background:none; border:none; padding:0; }
+  .theme-menu button:hover, .theme-menu button:focus-visible { background: color-mix(in srgb, var(--accent) 16%, transparent); }
+  .theme-menu button.active { background: color-mix(in srgb, var(--accent) 26%, transparent); }
+  .theme-trigger:focus-visible, .theme-menu button:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
   .mini-btn { height:32px; display:flex; align-items:center; justify-content:center; border:1px solid var(--border); background:var(--surface); border-radius:999px; padding:0 12px; font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--text); cursor:pointer; }
   .icon-btn { width:32px; height:32px; display:flex; align-items:center; justify-content:center; border-radius:999px; background:var(--surface); border:1px solid var(--border); font-size:15px; cursor:pointer; }
   .mode-picker { position:relative; }
@@ -735,8 +737,8 @@
       <div class="cv-picker">
         <button class="cv-trigger" id="cvTrigger" onclick="toggleCvMenu('cvMenu')">⬇ CV</button>
         <div class="cv-menu cv-menu-right" id="cvMenu">
-          <a href="CV_Agustin_Linares_ES.pdf" download="CV_Agustin_Linares_ES.pdf" target="_blank" rel="noopener">🇪🇸 Español</a>
-          <a href="CV_Agustin_Linares_EN.pdf" download="CV_Agustin_Linares_EN.pdf" target="_blank" rel="noopener">🇬🇧 English</a>
+          <a href="CV_Agustin_Linares_ES.pdf" download="CV_Agustin_Linares_ES.pdf" target="_blank" rel="noopener">🇪🇸 Español <span class="cv-size">(PDF, 826 KB)</span></a>
+          <a href="CV_Agustin_Linares_EN.pdf" download="CV_Agustin_Linares_EN.pdf" target="_blank" rel="noopener">🇬🇧 English <span class="cv-size">(PDF, 825 KB)</span></a>
         </div>
       </div>
       <button type="button" class="icon-btn nav-toggle" id="navToggle" onclick="event.stopPropagation(); toggleMobileNav();" aria-expanded="false" aria-controls="siteNav" aria-label="Abrir menú">
@@ -763,18 +765,18 @@
           </div>
           <div class="hero-theme-picker">
             <div class="theme-picker">
-              <div class="theme-trigger" id="themeTrigger" title="Cambiar temática" onclick="toggleThemeMenu()">💻</div>
-              <div class="theme-menu" id="themeMenu">
-                <span class="active" data-emoji="💻" title="Programación / SAP" onclick="selectTheme('💻')">💻</span>
-                <span data-emoji="🫒" title="Jaén" onclick="selectTheme('🫒')">🫒</span>
-                <span data-emoji="⚽" title="Real Betis" onclick="selectTheme('⚽')">⚽</span>
-                <span data-emoji="🚗" title="Motorsport" onclick="selectTheme('🚗')">🚗</span>
-                <span data-emoji="🎸" title="Música" onclick="selectTheme('🎸')">🎸</span>
-                <span data-emoji="🎮" title="Juegos modernos" onclick="selectTheme('🎮')">🎮</span>
-                <span data-emoji="🕹️" title="Retro" onclick="selectTheme('🕹️')">🕹️</span>
-                <span data-emoji="🎱" title="Juegos de mesa" onclick="selectTheme('🎱')">🎱</span>
-                <span data-emoji="🀄" title="Manga / Anime" onclick="selectTheme('🀄')">🀄</span>
-                <span data-emoji="🎥" title="Cine" onclick="selectTheme('🎥')">🎥</span>
+              <button type="button" class="theme-trigger" id="themeTrigger" title="Cambiar temática" onclick="toggleThemeMenu()" aria-haspopup="true" aria-expanded="false" aria-label="Cambiar temática de color">💻</button>
+              <div class="theme-menu" id="themeMenu" role="menu">
+                <button type="button" class="active" data-emoji="💻" title="Programación / SAP" aria-label="Programación / SAP" onclick="selectTheme('💻')">💻</button>
+                <button type="button" data-emoji="🫒" title="Jaén" aria-label="Jaén" onclick="selectTheme('🫒')">🫒</button>
+                <button type="button" data-emoji="⚽" title="Real Betis" aria-label="Real Betis" onclick="selectTheme('⚽')">⚽</button>
+                <button type="button" data-emoji="🚗" title="Motorsport" aria-label="Motorsport" onclick="selectTheme('🚗')">🚗</button>
+                <button type="button" data-emoji="🎸" title="Música" aria-label="Música" onclick="selectTheme('🎸')">🎸</button>
+                <button type="button" data-emoji="🎮" title="Juegos modernos" aria-label="Juegos modernos" onclick="selectTheme('🎮')">🎮</button>
+                <button type="button" data-emoji="🕹️" title="Retro" aria-label="Retro" onclick="selectTheme('🕹️')">🕹️</button>
+                <button type="button" data-emoji="🎱" title="Juegos de mesa" aria-label="Juegos de mesa" onclick="selectTheme('🎱')">🎱</button>
+                <button type="button" data-emoji="🀄" title="Manga / Anime" aria-label="Manga / Anime" onclick="selectTheme('🀄')">🀄</button>
+                <button type="button" data-emoji="🎥" title="Cine" aria-label="Cine" onclick="selectTheme('🎥')">🎥</button>
               </div>
             </div>
           </div>
@@ -789,8 +791,8 @@
       <div class="cv-picker">
         <button class="btn-pill btn-pill-ghost" id="cvTriggerHero" onclick="toggleCvMenu('cvMenuHero')">⬇ <span data-es="Descargar CV" data-en="Download CV">Descargar CV</span></button>
         <div class="cv-menu" id="cvMenuHero">
-          <a href="CV_Agustin_Linares_ES.pdf" download="CV_Agustin_Linares_ES.pdf" target="_blank" rel="noopener">🇪🇸 Español</a>
-          <a href="CV_Agustin_Linares_EN.pdf" download="CV_Agustin_Linares_EN.pdf" target="_blank" rel="noopener">🇬🇧 English</a>
+          <a href="CV_Agustin_Linares_ES.pdf" download="CV_Agustin_Linares_ES.pdf" target="_blank" rel="noopener">🇪🇸 Español <span class="cv-size">(PDF, 826 KB)</span></a>
+          <a href="CV_Agustin_Linares_EN.pdf" download="CV_Agustin_Linares_EN.pdf" target="_blank" rel="noopener">🇬🇧 English <span class="cv-size">(PDF, 825 KB)</span></a>
         </div>
       </div>
     </div>
@@ -1133,7 +1135,7 @@
                 </div>
               </div>
               <div class="exp-position-actions">
-                <button type="button" class="btn-pill btn-pill-ghost btn-pill-sm" onclick="openPdfModal('carta-referencia-mercanza.pdf', 'Carta de referencia — Mercanza')" data-es="Recibí una carta de referencia" data-en="I received a reference letter">Recibí una carta de referencia</button>
+                <button type="button" class="btn-pill btn-pill-ghost btn-pill-sm" onclick="openPdfModal('carta-referencia-mercanza.pdf', 'Carta de referencia — Mercanza')" data-es="Recibí una carta de referencia (PDF, 314 KB)" data-en="I received a reference letter (PDF, 314 KB)">Recibí una carta de referencia (PDF, 314 KB)</button>
               </div>
             </div>
           </div>
@@ -1245,7 +1247,7 @@
               <li data-es="Bases de datos: modelado, SQL, MySQL" data-en="Databases: modeling, SQL, MySQL">Bases de datos: modelado, SQL, MySQL</li>
             </ul>
             <div class="formacion-actions">
-              <button type="button" class="btn-pill btn-pill-ghost btn-pill-sm" onclick="openPdfModal('tfg-gofight.pdf', 'TFG — GoFight', 'Trabajo de Fin de Grado (FP DAM) desarrollado en equipo: GoFight, una aplicación móvil para la gestión y el seguimiento de entrenamientos de boxeo. Permite registrar rutinas y ejercicios, registrar las sesiones realizadas y consultar el progreso, con un sistema de gamificación basado en rachas y puntos para fomentar la constancia. Desarrollado con Node.js, PostgreSQL y Prisma ORM sobre una arquitectura cliente-servidor.', 'Final Degree Project (Vocational Training, DAM) built as a team: GoFight, a mobile app for managing and tracking boxing training. It lets users browse training routines and exercises, log completed sessions and track progress, with a gamification system based on streaks and points to encourage consistency. Built with Node.js, PostgreSQL and Prisma ORM on a client-server architecture.')" data-es="Ver TFG" data-en="View final project">Ver TFG</button>
+              <button type="button" class="btn-pill btn-pill-ghost btn-pill-sm" onclick="openPdfModal('tfg-gofight.pdf', 'TFG — GoFight', 'Trabajo de Fin de Grado (FP DAM) desarrollado en equipo: GoFight, una aplicación móvil para la gestión y el seguimiento de entrenamientos de boxeo. Permite registrar rutinas y ejercicios, registrar las sesiones realizadas y consultar el progreso, con un sistema de gamificación basado en rachas y puntos para fomentar la constancia. Desarrollado con Node.js, PostgreSQL y Prisma ORM sobre una arquitectura cliente-servidor.', 'Final Degree Project (Vocational Training, DAM) built as a team: GoFight, a mobile app for managing and tracking boxing training. It lets users browse training routines and exercises, log completed sessions and track progress, with a gamification system based on streaks and points to encourage consistency. Built with Node.js, PostgreSQL and Prisma ORM on a client-server architecture.')" data-es="Ver TFG (PDF, 2,2 MB)" data-en="View final project (PDF, 2.2 MB)">Ver TFG (PDF, 2,2 MB)</button>
             </div>
           </div>
           <div class="formacion-item">
@@ -1271,7 +1273,7 @@
             </ul>
             <div class="formacion-actions">
               <a href="https://www.tokioschool.com/noticias/opiniones-agustin-linares-alumno-sap/" target="_blank" rel="noopener" class="btn-pill btn-pill-ghost btn-pill-sm" data-es="Me hicieron una entrevista" data-en="I was interviewed">Me hicieron una entrevista</a>
-              <button type="button" class="btn-pill btn-pill-ghost btn-pill-sm" onclick="openPdfModal('tfm-sap-hcm.pdf', 'Proyecto final — Máster SAP HCM', 'Proyecto final 2020. Implementación ficticia del Módulo HCM para el cliente Renault-Nissan-Mitsubishi. Mi Proyecto Final fue la implementación del Programa SAP ERP para Groupe Renault en España y al resto de empresas de la Alianza Renault-Nissan-Mitsubishi.', 'Final project 2020. Fictitious implementation of the HCM Module for the client Renault-Nissan-Mitsubishi. My Final Project was the implementation of the SAP ERP Program for Groupe Renault in Spain and the rest of the companies in the Renault-Nissan-Mitsubishi Alliance.')" data-es="Ver TFM" data-en="View final project">Ver TFM</button>
+              <button type="button" class="btn-pill btn-pill-ghost btn-pill-sm" onclick="openPdfModal('tfm-sap-hcm.pdf', 'Proyecto final — Máster SAP HCM', 'Proyecto final 2020. Implementación ficticia del Módulo HCM para el cliente Renault-Nissan-Mitsubishi. Mi Proyecto Final fue la implementación del Programa SAP ERP para Groupe Renault en España y al resto de empresas de la Alianza Renault-Nissan-Mitsubishi.', 'Final project 2020. Fictitious implementation of the HCM Module for the client Renault-Nissan-Mitsubishi. My Final Project was the implementation of the SAP ERP Program for Groupe Renault in Spain and the rest of the companies in the Renault-Nissan-Mitsubishi Alliance.')" data-es="Ver TFM (PDF, 8,4 MB)" data-en="View final project (PDF, 8.4 MB)">Ver TFM (PDF, 8,4 MB)</button>
             </div>
           </div>
         </div>
@@ -2236,7 +2238,12 @@
     if (link) link.setAttribute('href', 'data:image/svg+xml,' + encodeURIComponent(svg));
   }
   function toggleThemeMenu() {
-    document.getElementById('themeMenu').classList.toggle('open');
+    const isOpen = document.getElementById('themeMenu').classList.toggle('open');
+    document.getElementById('themeTrigger').setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+  }
+  function closeThemeMenu() {
+    document.getElementById('themeMenu').classList.remove('open');
+    document.getElementById('themeTrigger').setAttribute('aria-expanded', 'false');
   }
   const THEME_SLUGS = {
     '💻': null, // temática por defecto: sin data-theme, usa los tokens base (:root / html.light)
@@ -2252,8 +2259,8 @@
   };
   function selectTheme(emoji) {
     document.getElementById('themeTrigger').textContent = emoji;
-    document.querySelectorAll('#themeMenu span').forEach(s => s.classList.toggle('active', s.dataset.emoji === emoji));
-    document.getElementById('themeMenu').classList.remove('open');
+    document.querySelectorAll('#themeMenu button').forEach(s => s.classList.toggle('active', s.dataset.emoji === emoji));
+    closeThemeMenu();
     const slug = THEME_SLUGS[emoji];
     if (slug) document.documentElement.setAttribute('data-theme', slug);
     else document.documentElement.removeAttribute('data-theme');
@@ -2316,11 +2323,18 @@
     document.body.style.overflow = '';
   }
   document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') { closePdfModal(); toggleMobileNav(true); }
+    if (e.key === 'Escape') {
+      closePdfModal();
+      toggleMobileNav(true);
+      closeThemeMenu();
+      document.getElementById('modeMenu').classList.remove('open');
+      document.getElementById('modeTrigger').setAttribute('aria-expanded', 'false');
+      document.querySelectorAll('.cv-menu.open').forEach(m => m.classList.remove('open'));
+    }
   });
   document.addEventListener('click', (e) => {
     const picker = document.querySelector('.theme-picker');
-    if (picker && !picker.contains(e.target)) document.getElementById('themeMenu').classList.remove('open');
+    if (picker && !picker.contains(e.target)) closeThemeMenu();
     const modePicker = document.querySelector('.mode-picker');
     if (modePicker && !modePicker.contains(e.target)) {
       document.getElementById('modeMenu').classList.remove('open');
