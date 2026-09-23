@@ -535,6 +535,11 @@
   .form-field input:focus, .form-field textarea:focus { outline:none; border-color:var(--accent); }
   .form-field-msg textarea { min-height:130px; resize:vertical; line-height:26px; padding-top:6px; background-image:repeating-linear-gradient(to bottom, transparent, transparent 25px, var(--border) 26px); border-bottom:none; }
   .contact-slip .btn-pill { align-self:center; margin-top:6px; cursor:pointer; }
+  .contact-slip .btn-pill[disabled] { opacity:.6; cursor:not-allowed; }
+  .hp-field { position:absolute; left:-9999px; top:-9999px; width:1px; height:1px; overflow:hidden; opacity:0; }
+  .form-status { text-align:center; font-family:'JetBrains Mono',monospace; font-size:12.5px; margin:0; }
+  .form-status.ok { color:#3f9142; }
+  .form-status.err { color:#c0392b; }
   .site-footer { border-top:1px solid var(--border); background:var(--surface); padding:26px 0; }
   .footer-inner { position:relative; display:flex; align-items:center; justify-content:space-between; gap:20px; flex-wrap:wrap; }
   .footer-brand { display:flex; align-items:center; }
@@ -1373,28 +1378,33 @@
           <a href="mailto:agustinlc88@gmail.com">agustinlc88@gmail.com</a> · <a href="https://github.com/agustinlinares" target="_blank" rel="noopener">github.com/agustinlinares</a> · <span data-es="Sevilla, España" data-en="Seville, Spain">Sevilla, España</span>
         </p>
       </div>
-      <form class="contact-slip" id="contactForm">
+      <form class="contact-slip" id="contactForm" method="post" novalidate>
         <div class="slip-meta">
           <span><span class="slip-meta-label" data-es="Ref:" data-en="Ref:">Ref:</span> <span class="slip-meta-value" id="slipRef"></span></span>
           <span><span class="slip-meta-label" data-es="Fecha:" data-en="Date:">Fecha:</span> <span class="slip-meta-value" id="slipDate"></span></span>
         </div>
         <div class="form-field">
           <label for="fName" data-es="Nombre / Empresa" data-en="Name / Company">Nombre / Empresa</label>
-          <input id="fName" required placeholder="Escribe aquí…" />
+          <input id="fName" name="name" required placeholder="Escribe aquí…" />
         </div>
         <div class="form-field">
           <label for="fEmail" data-es="Email de contacto" data-en="Contact email">Email de contacto</label>
-          <input id="fEmail" type="email" required placeholder="usuario@email.com" />
+          <input id="fEmail" name="email" type="email" required placeholder="usuario@email.com" />
         </div>
         <div class="form-field">
           <label for="fSubject" data-es="Asunto" data-en="Subject">Asunto</label>
-          <input id="fSubject" placeholder="Propuesta de proyecto…" />
+          <input id="fSubject" name="subject" placeholder="Propuesta de proyecto…" />
         </div>
         <div class="form-field form-field-msg">
           <label for="fMsg" data-es="Mensaje / Descripción" data-en="Message / Description">Mensaje / Descripción</label>
-          <textarea id="fMsg" required placeholder="Cuéntame en qué puedo ayudarte…"></textarea>
+          <textarea id="fMsg" name="message" required placeholder="Cuéntame en qué puedo ayudarte…"></textarea>
+        </div>
+        <div class="form-field hp-field" aria-hidden="true">
+          <label for="fWebsite">Website</label>
+          <input id="fWebsite" name="website" type="text" tabindex="-1" autocomplete="off" />
         </div>
         <button class="btn-pill btn-pill-solid" type="submit" id="fSubmit" data-es="Enviar solicitud" data-en="Send request">Enviar solicitud</button>
+        <p class="form-status" id="formStatus" role="status" aria-live="polite" hidden></p>
       </form>
     </div>
   </section>
@@ -1496,12 +1506,14 @@
     footerSocialsEl.innerHTML = CONTACTS.filter(c => c.name !== 'Email' && c.name !== 'LinkedIn').map(socialLink).join('');
   })();
 
-  // formulario de contacto: cabecera tipo "solicitud" + envío real vía mailto (sitio estático, sin backend)
+  // formulario de contacto: cabecera tipo "solicitud" + envío real vía contacto.php (backend PHP en el propio hosting IONOS)
   (function () {
     const refEl = document.getElementById('slipRef');
     const dateEl = document.getElementById('slipDate');
     const form = document.getElementById('contactForm');
-    if (!refEl || !dateEl || !form) return;
+    const submitBtn = document.getElementById('fSubmit');
+    const statusEl = document.getElementById('formStatus');
+    if (!refEl || !dateEl || !form || !submitBtn || !statusEl) return;
 
     const today = new Date();
     const dateStr = `${today.getDate()}/${today.getMonth() + 1}/${today.getFullYear()}`;
@@ -1513,17 +1525,56 @@
     refEl.textContent = curLang() === 'en' ? refEl.dataset.en : refEl.dataset.es;
     dateEl.textContent = dateStr;
 
-    form.addEventListener('submit', function (e) {
+    const MESSAGES = {
+      sending: { es: 'Enviando…', en: 'Sending…' },
+      ok: { es: '¡Mensaje enviado! Te responderé lo antes posible.', en: 'Message sent! I\'ll get back to you as soon as possible.' },
+      missing: { es: 'Rellena al menos nombre, email y mensaje.', en: 'Please fill in at least name, email and message.' },
+      invalidEmail: { es: 'Revisa el formato del email.', en: 'Check the email format.' },
+      err: { es: 'No se pudo enviar. Prueba de nuevo o escríbeme directamente a agustinlc88@gmail.com.', en: 'Couldn\'t send it. Try again or email me directly at agustinlc88@gmail.com.' },
+    };
+    const showStatus = (key, ok) => {
+      const lang = curLang();
+      statusEl.textContent = MESSAGES[key][lang];
+      statusEl.className = 'form-status ' + (ok ? 'ok' : 'err');
+      statusEl.hidden = false;
+    };
+
+    form.addEventListener('submit', async function (e) {
       e.preventDefault();
       const lang = curLang();
-      const name = document.getElementById('fName').value.trim();
-      const email = document.getElementById('fEmail').value.trim();
-      const subject = document.getElementById('fSubject').value.trim() || (lang === 'en' ? 'Contact from the portfolio' : 'Contacto desde el portfolio');
-      const msg = document.getElementById('fMsg').value.trim();
-      const labelName = lang === 'en' ? 'Name / Company' : 'Nombre / Empresa';
-      const labelEmail = lang === 'en' ? 'Contact email' : 'Email de contacto';
-      const body = `${labelName}: ${name}\n${labelEmail}: ${email}\n\n${msg}`;
-      window.location.href = `mailto:agustinlc88@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+      const nameEl = document.getElementById('fName');
+      const emailEl = document.getElementById('fEmail');
+      const subjectEl = document.getElementById('fSubject');
+      const msgEl = document.getElementById('fMsg');
+      const name = nameEl.value.trim();
+      const email = emailEl.value.trim();
+      const subject = subjectEl.value.trim() || (lang === 'en' ? 'Contact from the portfolio' : 'Contacto desde el portfolio');
+      const message = msgEl.value.trim();
+
+      if (!name || !email || !message) { showStatus('missing', false); return; }
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showStatus('invalidEmail', false); return; }
+
+      submitBtn.disabled = true;
+      statusEl.hidden = true;
+      const originalLabel = submitBtn.textContent;
+      submitBtn.textContent = MESSAGES.sending[lang];
+
+      try {
+        const fd = new FormData(form);
+        const res = await fetch('contacto.php', { method: 'POST', body: fd, headers: { 'Accept': 'application/json' } });
+        const data = await res.json().catch(() => ({ ok: false }));
+        if (res.ok && data.ok) {
+          showStatus('ok', true);
+          form.reset();
+        } else {
+          showStatus('err', false);
+        }
+      } catch (err) {
+        showStatus('err', false);
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = originalLabel;
+      }
     });
   })();
 
