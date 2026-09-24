@@ -1,12 +1,55 @@
-# Carpeta donde el entregable de Claude/Cowork se guarda automáticamente
-# (capturas de verificación, entregas intermedias, versiones antiguas) —
-# no forma parte del sitio desplegado.
-Claude outputs/
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
-# Captura de verificación suelta que quedó en la raíz por error, no es un
-# asset del sitio.
-depth_rest.png
+# dependencies
+/node_modules
+/.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
 
-# Archivos de sistema habituales
+# testing
+/coverage
+
+# next.js
+/.next/
+/out/
+
+# production
+/build
+
+# misc
 .DS_Store
+*.pem
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# env files (can opt-in for committing if needed)
+.env*
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+
+# credenciales del formulario de contacto (contraseña de aplicación de
+# Gmail): NUNCA debe subirse al repositorio. Se sube a mano solo a IONOS.
+smtp-config.php
+
+# archivos auto-generados por `next dev`/`next build` para agentes de IA,
+# se regeneran solos, no hace falta versionarlos
+AGENTS.md
+CLAUDE.md
+
+# capturas/entregas sueltas de Claude que no son parte del sitio
+Claude outputs/
 Thumbs.db
+

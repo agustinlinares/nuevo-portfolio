@@ -8,7 +8,7 @@ Portfolio personal de **Agustín Linares Carrera**, desarrollador de Aplicacione
 
 ## Sobre el proyecto
 
-Sitio de una sola página construido con **HTML, CSS y JavaScript sin frameworks** (sin proceso de build), pensado como carta de presentación profesional: quién soy, en qué trabajo, mi stack técnico, mi experiencia y mis proyectos reales.
+Sitio de una sola página construido con **Next.js (App Router) + TypeScript + Tailwind CSS**, exportado como HTML/CSS/JS 100% estático (`output: 'export'`) para desplegarse en hosting compartido clásico (IONOS), sin necesitar un servidor Node en producción. Pensado como carta de presentación profesional: quién soy, en qué trabajo, mi stack técnico, mi experiencia y mis proyectos reales.
 
 ### Secciones
 
@@ -17,7 +17,7 @@ Sitio de una sola página construido con **HTML, CSS y JavaScript sin frameworks
 - **Experiencia** — trayectoria profesional, formación, certificaciones e idiomas.
 - **Portfolio** — proyectos reales con ficha ampliada (problema, solución, funcionalidades y aprendizajes).
 - **Blog** — próximamente.
-- **Contacto** — formulario funcional con backend propio en PHP.
+- **Contacto** — formulario funcional con backend propio en PHP (`contacto.php`, fuera del build de Next.js, ver más abajo).
 
 ### Características
 
@@ -36,6 +36,35 @@ Sitio de una sola página construido con **HTML, CSS y JavaScript sin frameworks
 | Chatbot Web Hotel Costa Azul | Chatbot web para un hotel ficticio | [Demo](https://chatbot-web-hotel-costa-azul.vercel.app) |
 | Odoo — Gestión y Manuales | Manuales de gestión con Odoo | [Demo](https://odoo-manuales.netlify.app) |
 | Copistería/Biblioteca | Ejercicio de concurrencia en Java | — |
+
+## Stack técnico
+
+- **Next.js** (App Router) + **TypeScript** + **Tailwind CSS**.
+- Contexto de React para el sistema de 10 temas y el idioma ES/EN.
+- Exportación 100% estática (`next build` con `output: 'export'` en `next.config.ts`) — el resultado en `out/` es HTML/CSS/JS plano, sin servidor Node en producción.
+
+### Desarrollo local
+
+```bash
+npm install
+npm run dev
+```
+
+Abre [http://localhost:3000](http://localhost:3000).
+
+### Build de producción (exportación estática)
+
+```bash
+npm run build
+```
+
+Genera la carpeta `out/` lista para subir tal cual a la raíz del hosting.
+
+## Backend del formulario de contacto
+
+`contacto.php`, la carpeta `PHPMailer/` y `smtp-config.example.php` viven en la raíz del repositorio pero **no forman parte del build de Next.js** — son archivos PHP independientes que se suben directamente al servidor de IONOS junto al contenido exportado. El frontend simplemente hace `fetch('contacto.php', ...)` con los mismos nombres de campo (`name`, `email`, `subject`, `message`, `website`).
+
+`smtp-config.php` (con la contraseña de aplicación de Gmail real) **nunca se sube al repositorio** — se crea localmente a partir de `smtp-config.example.php` y se sube solo por SFTP/gestor de archivos de IONOS.
 
 ## Contacto
 

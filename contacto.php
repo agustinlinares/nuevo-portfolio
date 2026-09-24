@@ -1,9 +1,15 @@
 <?php
 /**
  * contacto.php
- * Backend mínimo para el formulario de contacto del portfolio de Agustín Linares.
- * Recibe los datos por POST, valida, y reenvía el mensaje por email usando mail() de PHP
- * (disponible por defecto en el hosting compartido de IONOS, sin dependencias externas).
+ * Backend del formulario de contacto del portfolio de Agustín Linares.
+ * Recibe los datos por POST, valida, y envía el mensaje por email vía SMTP
+ * (Gmail) usando PHPMailer, porque el mail() nativo de PHP no funciona en
+ * este hosting de IONOS al no existir un buzón real para el dominio.
+ *
+ * Requiere, en la MISMA carpeta que este archivo:
+ *   - La carpeta PHPMailer/ (PHPMailer.php, SMTP.php, Exception.php)
+ *   - smtp-config.php  (NO se sube al repositorio de Git; contiene la
+ *     contraseña de aplicación de Gmail; ver smtp-config.example.php)
  *
  * Subir a la misma carpeta que index.html (p. ej. /agustinlinaresdev/contacto.php).
  */
@@ -64,20 +70,54 @@ $body  = "Nombre / Empresa: $name\n";
 $body .= "Email de contacto: $email\n\n";
 $body .= "Mensaje:\n$message\n";
 
-// El remitente técnico ("From") debe ser del propio dominio para que los servidores
-// de correo no lo rechacen; "Reply-To" apunta al email real del visitante, para
-// poder responderle directamente desde el cliente de correo.
-$safeEmail = str_replace(["\r", "\n"], '', $email);
-$headers  = "From: Portfolio Agustín Linares <no-reply@agustinlinares.dev>\r\n";
-$headers .= "Reply-To: $safeEmail\r\n";
-$headers .= "MIME-Version: 1.0\r\n";
-$headers .= "Content-Type: text/plain; charset=UTF-8\r\n";
-
-$sent = @mail($to, $mailSubject, $body, $headers);
-
-if ($sent) {
-    echo json_encode(['ok' => true]);
-} else {
+// --- Configuración SMTP (credenciales fuera del repositorio Git) ---
+$configPath = __DIR__ . '/smtp-config.php';
+if (!is_file($configPath)) {
     http_response_code(500);
-    echo json_encode(['ok' => false, 'error' => 'send_failed']);
+    echo json_encode(['ok' => false, 'error' => 'config_missing']);
+    exit;
+}
+require $configPath; // define SMTP_USERNAME, SMTP_APP_PASSWORD y, opcionalmente, DEBUG_MODE
+
+require __DIR__ . '/PHPMailer/Exception.php';
+require __DIR__ . '/PHPMailer/PHPMailer.php';
+require __DIR__ . '/PHPMailer/SMTP.php';
+
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception as PHPMailerException;
+
+$debugMode = defined('DEBUG_MODE') && DEBUG_MODE === true;
+
+$mail = new PHPMailer(true);
+try {
+    // Servidor SMTP de Gmail.
+    $mail->isSMTP();
+    $mail->Host       = 'smtp.gmail.com';
+    $mail->SMTPAuth   = true;
+    $mail->Username   = SMTP_USERNAME;
+    $mail->Password   = SMTP_APP_PASSWORD;
+    $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+    $mail->Port       = 587;
+    $mail->CharSet    = 'UTF-8';
+
+    // El remitente técnico es la propia cuenta de Gmail autenticada; "Reply-To"
+    // apunta al email real del visitante, para poder responderle directamente.
+    $mail->setFrom(SMTP_USERNAME, 'Portfolio Agustín Linares');
+    $mail->addAddress($to);
+    $mail->addReplyTo($email, $name);
+
+    $mail->Subject = $mailSubject;
+    $mail->Body    = $body;
+    $mail->isHTML(false);
+
+    $mail->send();
+    echo json_encode(['ok' => true]);
+} catch (PHPMailerException $e) {
+    error_log('contacto.php PHPMailer error: ' . $mail->ErrorInfo);
+    http_response_code(500);
+    $response = ['ok' => false, 'error' => 'send_failed'];
+    if ($debugMode) {
+        $response['debug'] = $mail->ErrorInfo;
+    }
+    echo json_encode($response);
 }
